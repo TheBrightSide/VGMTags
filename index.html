@@ -6,18 +6,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VGMTag</title>
   <!-- Load FontAwesome icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <script src="https://kit.fontawesome.com/14b4c5f1c0.js" crossorigin="anonymous"></script>
 
   <!-- Load Funny Fonts LOL (: -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-  <link href="/style.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 
   <!-- CSS style -->
 </head>
 
 <body>
-
 
   <div class="player">
     <div class="details">
@@ -27,19 +26,21 @@
       <div class="track-artist">Track Artist</div>
     </div>
     <div class="buttons">
-      <div class="prev-track" onclick="prevTrack()"><i class="fa fa-step-backward fa-2x"></i></div>
-      <div class="playpause-track" onclick="playpauseTrack()"><i class="fa fa-play-circle fa-5x"></i></div>
-      <div class="next-track" onclick="nextTrack()"><i class="fa fa-step-forward fa-2x"></i></div>
+      <div class="prev-track" onclick="prevTrack()"><i class="fas fa-step-backward fa-2x"></i></div>
+      <div class="playpause-track" onclick="playpauseTrack()"><i class="fas fa-play-circle fa-5x"></i></div>
+      <div class="next-track" onclick="nextTrack()"><i class="fas fa-step-forward fa-2x"></i></div>
     </div>
     <div class="slider_container">
       <div class="current-time">00:00</div>
       <input type="range" min="1" max="100" value="0" class="seek_slider" onchange="seekTo()">
       <div class="total-duration">00:00</div>
     </div>
-    <div class="slider_container">
-      <i class="fa fa-volume-down"></i>
+    <div class="slider_container">  
+      <div class="add-playlist" onclick="heartSong()"><i class="far fa-heart"></i></div>
+      <i class="fas fa-volume-down"></i>
       <input type="range" min="1" max="100" value="99" class="volume_slider" onchange="setVolume()">
-      <i class="fa fa-volume-up"></i>
+      <i class="fas fa-volume-up"></i>
+      <div class="tag-track" onclick="tagSong()"><i class="fa fa-tag"></i></div>
     </div>
   </div>
 

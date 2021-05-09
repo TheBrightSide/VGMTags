@@ -17,43 +17,11 @@ async function readTags(fileName) {
     })
 }
 
-app.get('/foldertree/', (req, res) => {
-    res.send(fs.readdirSync('Music').map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
-})
+async function getMusicFilenames(folderName) {
+    if (folderName) var folders = fs.readdirSync('./Music').filter(e => e === folderName);
+    else var folders = fs.readdirSync('./Music');
 
-app.get('/foldertree/:folderName', (req, res) => {
-    const folderName = req.params.folderName;
-    const encodedFolderName = encodeURIComponent(folderName);
-
-    if (fs.existsSync(`./Music/${folderName}`)) {
-        const availableLinks = fs.readdirSync(`./Music/${folderName}`)
-            .filter(e => e.endsWith('.mp3'))
-            .map(e => `${FOLDERTREE_ENDPOINT}/${encodedFolderName}/${encodeURIComponent(e)}`);
-
-        const hasThumbnail = fs.existsSync(`./Music/${folderName}/thumbnail.png`);
-
-        res.send({
-            availableLinks,
-            thumbnail: hasThumbnail ? `${FOLDERTREE_ENDPOINT}/${encodedFolderName}/thumbnail.png` : null
-        });
-    } else {
-        res.status(404).json({
-            "error": "folder not found"
-        });
-    }
-})
-
-app.use('/foldertree', express.static('Music'));
-
-app.get('/tags', (req, res) => {
-    // uh not implemented yet idk
-    res.status(404);
-    res.send('nothing m8');
-});
-
-app.get('/allmusic', async (req, res) => {
-    const folders = fs.readdirSync('./Music');
-    let fileArr = [];
+    var fileArr = [];
 
     for (folder of folders) {
         let files = fs.readdirSync(`./Music/${folder}`).filter(e => e.endsWith('.mp3'));
@@ -71,7 +39,43 @@ app.get('/allmusic', async (req, res) => {
         }
     }
 
-    res.send(fileArr);
+    return fileArr;
+}
+
+app.get('/foldertree/', (req, res) => {
+    res.send(fs.readdirSync('Music').map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
 })
+
+app.get('/foldertree/:folderName', (req, res) => {
+    getMusicFilenames(req.params.folderName)
+        .then(r => res.send(r))
+        .catch(e => {
+            res.status(500);
+            res.send({
+                "error": "Oops! Something went wrong, check the stack below.",
+                "stack": e.stack
+            });
+        });
+})
+
+app.use('/foldertree', express.static('Music'));
+
+app.get('/allmusic', (req, res) => {
+    getMusicFilenames()
+        .then(r => res.send(r))
+        .catch(e => {
+            res.status(500);
+            res.send({
+                "error": "Oops! Something went wrong, check the stack below.",
+                "stack": e.stack
+            });
+        });
+});
+
+app.get('/tags', (req, res) => {
+    // uh not implemented yet idk
+    res.status(404);
+    res.send('nothing m8');
+});
 
 module.exports = app;
