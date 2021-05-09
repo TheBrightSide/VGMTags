@@ -4,12 +4,6 @@ body {
 }
 
 body {
-	/* background-image: url('Backgrounds/World1Galaxy.PNG');
-      -webkit-background-size: cover;
-      -moz-background-size: cover;
-      -o-background-size: cover;
-      background-repeat: no-repeat;
-      background-size: cover; */
 	background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('Backgrounds/SMG4.PNG');
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -143,5 +137,12 @@ i.fa-play-circle,
 i.fa-pause-circle,
 i.fa-step-forward,
 i.fa-step-backward {
+	cursor: pointer;
+}
+
+.add-playlist,
+.tag-track {
+	margin: 20px;
+	padding: 5px;
 	cursor: pointer;
 }
