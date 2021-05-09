@@ -3,6 +3,10 @@ const app = express();
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
 
+const FOLDERTREE_ENDPOINT = '/music/foldertree';
+const TAGS_ENDPOINT = '/music/tags';
+const ALLMUSIC_ENDPOINT = '/music/allmusic';
+
 async function readTags(fileName) {
     return new Promise((resolve, reject) => {
         new jsmediatags.Reader(fileName)
@@ -14,7 +18,7 @@ async function readTags(fileName) {
 }
 
 app.get('/foldertree/', (req, res) => {
-    res.send(fs.readdirSync('Music').map(e => '/music/' + encodeURIComponent(e)));
+    res.send(fs.readdirSync('Music').map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
 })
 
 app.get('/foldertree/:folderName', (req, res) => {
@@ -24,13 +28,13 @@ app.get('/foldertree/:folderName', (req, res) => {
     if (fs.existsSync(`./Music/${folderName}`)) {
         const availableLinks = fs.readdirSync(`./Music/${folderName}`)
             .filter(e => e.endsWith('.mp3'))
-            .map(e => `/music/${encodedFolderName}/${encodeURIComponent(e)}`);
+            .map(e => `${FOLDERTREE_ENDPOINT}/${encodedFolderName}/${encodeURIComponent(e)}`);
 
         const hasThumbnail = fs.existsSync(`./Music/${folderName}/thumbnail.png`);
 
         res.send({
             availableLinks,
-            thumbnail: hasThumbnail ? `/music/${encodedFolderName}/thumbnail.png` : null
+            thumbnail: hasThumbnail ? `${FOLDERTREE_ENDPOINT}/${encodedFolderName}/thumbnail.png` : null
         });
     } else {
         res.status(404).json({
@@ -54,12 +58,12 @@ app.get('/allmusic', async (req, res) => {
     for (folder of folders) {
         let files = fs.readdirSync(`./Music/${folder}`).filter(e => e.endsWith('.mp3'));
         let thumbnail = fs.existsSync(`./Music/${folder}/thumbnail.png`) ?
-            `/music/${encodeURIComponent(folder)}/thumbnail.png` : null;
+            `${FOLDERTREE_ENDPOINT}/${encodeURIComponent(folder)}/thumbnail.png` : null;
         for (file of files) {
             const path = `./Music/${folder}/${file}`;
             const { tags } = await readTags(path);
             fileArr.push({
-                path: `/foldertree/${encodeURIComponent(folder)}/${encodeURIComponent(file)}`,
+                path: `${FOLDERTREE_ENDPOINT}/${encodeURIComponent(folder)}/${encodeURIComponent(file)}`,
                 title: tags.title,
                 album: tags.album,
                 thumbnail
