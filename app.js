@@ -1,11 +1,13 @@
-const http = require('http')
-const fs = require('fs')
-const express = require('express')
-const axios = require('axios')
-const jsmediatags = require('jsmediatags')
+const http = require('http');
+const fs = require('fs');
+const express = require('express');
+const axios = require('axios');
+const jsmediatags = require('jsmediatags');
 const musicModule = require('./music.js');
-const bodyParser = require('body-parser')
-// const publicDir = require('path').join(__dirname, './')
+const bodyParser = require('body-parser');
+
+const dirCacheScheduler = new (require('./cacheDirectoryTask.js'))('./Music', 3600000);
+dirCacheScheduler.startCacheTimer();
 
 const app = express();
 
@@ -64,6 +66,14 @@ app.get('/newBackground', function (request, response) {
 
 })
 
-app.use(express.static('./'))
+app.use(express.static('static'));
 
-let listener = app.listen(process.env.PORT || 3000, () => console.log('Server started on port', listener.address().port))
+console.log('Waiting for cache...');
+dirCacheScheduler.once('writtenCache', () => {
+  console.log('Cache created!');
+
+  console.log('Refreshing cache every', dirCacheScheduler.refreshCacheInterval, 'ms');
+  let listener = app.listen(process.env.PORT || 3000, () => console.log('Server started on port', listener.address().port));
+
+  dirCacheScheduler.on('writtenCache', () => console.log('Cache refreshed!'));
+})
