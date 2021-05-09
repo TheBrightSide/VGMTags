@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 app.post('/newSong', function (request, response) {
   const song = request.body.song;
 
-  var selected_album = viable_albums[Math.floor(Math.random() * viable_albums.length + 1)]
+  var selected_album = viable_albums[Math.floor(Math.random() * viable_albums.length)]
   var newSong = "";
 
   fs.readdir(selected_album, (err, files) => {
@@ -34,7 +34,7 @@ app.post('/newSong', function (request, response) {
         album_songs.push(song);
       }
     });
-    newSong = selected_album + "/" + album_songs[Math.floor(Math.random() * album_songs.length + 1)]
+    newSong = selected_album + "/" + album_songs[Math.floor(Math.random() * album_songs.length)]
     newSong = newSong.replace("'", "\'")
 
     jsmediatags.read(newSong, {
@@ -59,7 +59,7 @@ app.get('/newBackground', function (request, response) {
     files.forEach(image => {
       backgrounds.push("Backgrounds/" + image)
     });
-    response.send({ background: backgrounds[Math.floor(Math.random() * backgrounds.length + 1)] })
+    response.send({ background: backgrounds[Math.floor(Math.random() * backgrounds.length)] })
   })
 
 })

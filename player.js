@@ -12,6 +12,8 @@ let volume_slider = document.querySelector(".volume_slider");
 let curr_time = document.querySelector(".current-time");
 let total_duration = document.querySelector(".total-duration");
 
+let heart_button = document.querySelector(".add-playlist");
+
 var track_index = 0;
 let isPlaying = false;
 let updateTimer;
@@ -73,7 +75,7 @@ function playTrack() {
   isPlaying = true;
 
   // Replace icon with the pause icon
-  playpause_btn.innerHTML = '<i class="fa fa-pause-circle fa-5x"></i>';
+  playpause_btn.innerHTML = '<i class="fas fa-pause-circle fa-5x"></i>';
 }
 
 function pauseTrack() {
@@ -81,7 +83,7 @@ function pauseTrack() {
   isPlaying = false;
 
   // Replace icon with the play icon
-  playpause_btn.innerHTML = '<i class="fa fa-play-circle fa-5x"></i>';;
+  playpause_btn.innerHTML = '<i class="fas fa-play-circle fa-5x"></i>';;
 }
 
 // Fetches a newSong. Yes I know it is messy :/
@@ -166,6 +168,19 @@ function seekUpdate() {
     curr_time.textContent = currentMinutes + ":" + currentSeconds;
     total_duration.textContent = durationMinutes + ":" + durationSeconds;
   }
+}
+
+function heartSong(){
+  if(heart_button.innerHTML == '<i class="far fa-heart" aria-hidden="true"></i>'){
+    heart_button.innerHTML = '<i class="fas fa-heart"></i>'
+  }
+  else {
+    heart_button.innerHTML = '<i class="far fa-heart"></i>'
+  }
+}
+
+function tagSong(){
+  alert("Hi Alex (:")
 }
 
 (async () => {
