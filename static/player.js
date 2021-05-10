@@ -14,27 +14,30 @@ let total_duration = document.querySelector(".total-duration");
 
 let heart_button = document.querySelector(".add-playlist");
 
-var track_index = 0;
+let track_index = 0;
 let isPlaying = false;
+let isTaggerOpen = false;
 let updateTimer;
-var track_list = [];
+let track_list = [];
 
 // Create new audio element
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
-''
 
 class Song {
   constructor(path, album, title) {
-
-
     this.title = title;
     this.album = album;
     this.image = path.substring(0, path.lastIndexOf("/") + 1) + "thumbnail.png";
     this.path = path;
-
-    console.log(this.image);
+    this.tags = [];
   }
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
 function loadTrack(track_index) {
@@ -135,6 +138,7 @@ function seekTo() {
 
 function setVolume() {
   curr_track.volume = volume_slider.value / 100;
+  document.cookie = "volume=" + volume_slider.value / 100
 }
 
 function seekUpdate() {
@@ -170,8 +174,8 @@ function seekUpdate() {
   }
 }
 
-function heartSong(){
-  if(heart_button.innerHTML == '<i class="far fa-heart" aria-hidden="true"></i>'){
+function heartSong() {
+  if (heart_button.innerHTML == '<i class="far fa-heart" aria-hidden="true"></i>') {
     heart_button.innerHTML = '<i class="fas fa-heart"></i>'
   }
   else {
@@ -179,9 +183,27 @@ function heartSong(){
   }
 }
 
-function tagSong(){
-  alert("Hi Alex (:")
+function tagSong() {
+  console.log(isTaggerOpen)
+  if(isTaggerOpen){
+    closeNav();
+  } 
+  else{
+    openNav();
+  } 
 }
+/* Set the width of the side navigation to 250px */
+function openNav() {
+  document.getElementById("mySidenav").style.width = "250px";
+  isTaggerOpen = true;
+}
+
+/* Set the width of the side navigation to 0 */
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  isTaggerOpen = false;
+}
+
 
 (async () => {
   await fetch('/newSong', {
@@ -198,11 +220,20 @@ function tagSong(){
     track_list.push(new Song(data.path, data.album, data.title));
   });
 
-  volume_slider.value = 50;
-  curr_track.volume = .5;
-  
+  if (getCookie('volume') != undefined){
+    volume_slider.value = getCookie('volume')*100;
+    curr_track.volume = getCookie('volume');
+    console.log(getCookie('volume'))
+  }
+  else{
+    volume_slider.value = 50;
+    curr_track.volume = .5;
+    document.cookie = "volume=.5"
+  }
+
+
   // Load the random background
-  async function loadNextBackground(){
+  async function loadNextBackground() {
     await fetch('/newBackground', {
       method: 'GET',
     })
