@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 const fs = require('fs');
-const { getMusicFilenames } = require('./musicFileUtils.js');
+const { getMusicFilenames } = require('./util.js');
 
 class CacheTaskEventEmitter extends EventEmitter {
     constructor (cacheDirectory, refreshCacheInterval) {

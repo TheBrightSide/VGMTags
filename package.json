@@ -19,7 +19,8 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "./cache/listing.json"
+      "./cache/**",
+      "./db/**"
     ]
   }
 }

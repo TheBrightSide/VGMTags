@@ -2,19 +2,31 @@ const express = require('express');
 const app = express();
 const fs = require('fs');
 
-const { getMusicFilenames, getCachedMusicFilenames, readTags } = require('./musicFileUtils.js');
+const { 
+    getMusicFilenames,
+    getCachedMusicFilenames,
+    random,
+    getMusicFolders
+} = require('./util.js');
 
 const FOLDERTREE_ENDPOINT = '/music/foldertree';
 const TAGS_ENDPOINT = '/music/tags';
 const ALLMUSIC_ENDPOINT = '/music/allmusic';
 
-
 app.get('/foldertree/', (req, res) => {
-    res.send(fs.readdirSync('Music').map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
+    try {
+        res.send(getMusicFolders().map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
+    } catch (e) {
+        res.status(500);
+        res.send({
+            "error": "Oops! Something went wrong, check the stack below.",
+            "stack": e.stack
+        })
+    }
 })
 
 app.get('/foldertree/:folderName', (req, res) => {
-    getMusicFilenames(req.params.folderName)
+    getCachedMusicFilenames(req.params.folderName)
         .then(r => res.send(r))
         .catch(e => {
             res.status(500);
@@ -26,6 +38,10 @@ app.get('/foldertree/:folderName', (req, res) => {
 })
 
 app.use('/foldertree', express.static('Music'));
+
+app.get('/randomSong', (req, res) => {
+    throw new Error('not implemented');
+})
 
 app.get('/allmusic', (req, res) => {
     var { count, offset } = req.query;
