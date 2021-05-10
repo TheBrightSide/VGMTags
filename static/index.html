@@ -9,6 +9,7 @@
   <script src="https://kit.fontawesome.com/14b4c5f1c0.js" crossorigin="anonymous"></script>
 
   <!-- Load Funny Fonts LOL (: -->
+  <link rel="shortcut icon" type="image/x-icon" href="app.ico">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
@@ -42,6 +43,15 @@
       <i class="fas fa-volume-up"></i>
       <div class="tag-track" onclick="tagSong()"><i class="fa fa-tag"></i></div>
     </div>
+  </div>
+
+  <!-- Tag Menu [NOT WORKING YET] -->
+  <div id="mySidenav" class="sidenav">
+    <input type="text" class="searchbar" style="font-size:25px;" placeholder="Search for tag..." onkeyup="printHi()">&times;</a>
+    <a href="#">Relaxing</a>
+    <a href="#">Upbeat</a>
+    <a href="#">Intense</a>
+    <a href="#">Jazzy</a>
   </div>
 
   <!-- Main script for the player -->

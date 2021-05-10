@@ -1,7 +1,5 @@
-const http = require('http');
 const fs = require('fs');
 const express = require('express');
-const axios = require('axios');
 const jsmediatags = require('jsmediatags');
 const musicModule = require('./music.js');
 const bodyParser = require('body-parser');
@@ -10,7 +8,6 @@ const dirCacheScheduler = new (require('./cacheDirectoryTask.js'))('./Music', 36
 dirCacheScheduler.startCacheTimer();
 
 const app = express();
-
 var viable_albums = [];
 
 fs.readdir('Music', (err, files) => {
