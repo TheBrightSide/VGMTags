@@ -200,14 +200,39 @@ function tagSong() {
 }
 /* Set the width of the side navigation to 250px */
 function openNav() {
-  document.getElementById("mySidenav").style.width = "250px";
+  document.getElementById("tagAdderList").style.width = "20%";
+  document.getElementById("tagSearchFilter").focus();
   isTaggerOpen = true;
 }
 
 /* Set the width of the side navigation to 0 */
 function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("tagAdderList").style.width = "0";
   isTaggerOpen = false;
+}
+
+function searchFilter() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('tagSearchFilter');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("tagAdderList");
+  li = ul.getElementsByTagName('tag');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+    a = li[i].getElementsByTagName("a")[0];
+    txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
+function printHi() {
+  alert("hi Alex (:")
 }
 
 
