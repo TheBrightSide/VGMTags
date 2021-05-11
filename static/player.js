@@ -18,14 +18,25 @@ let track_index = 0;
 let isPlaying = false;
 let isTaggerOpen = false;
 let updateTimer;
-let track_list = [];
+let track_list = []; //Songs in queue
+let cache = []; //The unchanging cache
+let full_albums = []; //The changing cache
 
 // Create new audio element
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
 
+class Album {
+  constructor(title, songs, path) {
+    this.title = title;
+    this.songs = songs;
+    this.path = path;
+    this.tags = [];
+  }
+}
+
 class Song {
-  constructor(path, album, title) {
+  constructor(path, album, title, thumbnail) {
     this.title = title;
     this.album = album;
     this.image = path.substring(0, path.lastIndexOf("/") + 1) + "thumbnail.png";
@@ -92,19 +103,14 @@ function pauseTrack() {
 // Fetches a newSong. Yes I know it is messy :/
 async function loadNextSong() {
   if (track_list.length - 1 == track_index) {
-    await fetch('/newSong', {
-        method: 'POST',
-        body: JSON.stringify({
-          song: "hi"
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        track_list.push(new Song(data.path, data.album, data.title));
-      });
+    selected_song = null;
+
+    // Selects a song that has not already been played
+    while (selected_song == null || track_list.some((song) => song.title === selected_song.title)) {
+      var selected_album = full_albums[Math.floor(Math.random() * full_albums.length)]
+      selected_song = selected_album.songs[Math.floor(Math.random() * selected_album.songs.length)]
+    }
+    track_list.push(selected_song)
   }
 }
 
@@ -206,19 +212,25 @@ function closeNav() {
 
 
 (async () => {
-  await fetch('/newSong', {
-    method: 'POST',
-    body: JSON.stringify({
-      song: "hi"
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+  await fetch('/music/allmusic', {
+    method: 'GET',
   })
   .then(response => response.json())
   .then(data => {
-    track_list.push(new Song(data.path, data.album, data.title));
-  });
+    data.forEach(album => {
+      album_songs = []
+      album['songs'].forEach(song => {
+        album_songs.push(new Song(song['path'], album['title'], song['title'], album['thumbnail']));
+      })
+      cache.push(new Album(album['title'], album_songs, album['path']))
+    });
+  })
+
+  full_albums = cache;
+
+  var selected_album = full_albums[Math.floor(Math.random() * full_albums.length)]
+  var selected_song = selected_album.songs[Math.floor(Math.random() * selected_album.songs.length)]
+  track_list.push(selected_song)
 
   if (getCookie('volume') != undefined){
     volume_slider.value = getCookie('volume')*100;
@@ -251,4 +263,4 @@ function closeNav() {
 
   //Loads the first song from track_list
   loadTrack(track_index);
-})()
+})();

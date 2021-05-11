@@ -18,6 +18,7 @@ async function readTags(fileName) {
 function getMusicFolders() {
     return fs.readdirSync('./Music', { withFileTypes: true })
         .filter(dirent => dirent.isDirectory())
+        .filter(dirent => dirent.existsSync("thumbnail.png"))
         .map(dirent => dirent.name);
 }
 
