@@ -64,6 +64,7 @@ app.get('/newBackground', function (request, response) {
 })
 
 app.use(express.static('static'));
+app.use(express.static('./'))
 
 console.log('Waiting for cache...');
 dirCacheScheduler.once('writtenCache', () => {

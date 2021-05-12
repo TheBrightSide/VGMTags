@@ -18,14 +18,26 @@ let track_index = 0;
 let isPlaying = false;
 let isTaggerOpen = false;
 let updateTimer;
-let track_list = [];
+let track_list = []; //Songs in queue
+let cache = []; //The unchanging cache
+let full_albums = []; //The changing cache
+let restricted_tag_list = ["Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
 
 // Create new audio element
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
 
+class Album {
+  constructor(title, songs, path) {
+    this.title = title;
+    this.songs = songs;
+    this.path = path;
+    this.tags = [];
+  }
+}
+
 class Song {
-  constructor(path, album, title) {
+  constructor(path, album, title, thumbnail) {
     this.title = title;
     this.album = album;
     this.image = path.substring(0, path.lastIndexOf("/") + 1) + "thumbnail.png";
@@ -92,19 +104,14 @@ function pauseTrack() {
 // Fetches a newSong. Yes I know it is messy :/
 async function loadNextSong() {
   if (track_list.length - 1 == track_index) {
-    await fetch('/newSong', {
-        method: 'POST',
-        body: JSON.stringify({
-          song: "hi"
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        track_list.push(new Song(data.path, data.album, data.title));
-      });
+    selected_song = null;
+
+    // Selects a song that has not already been played
+    while (selected_song == null || track_list.some((song) => song.title === selected_song.title)) {
+      var selected_album = full_albums[Math.floor(Math.random() * full_albums.length)]
+      selected_song = selected_album.songs[Math.floor(Math.random() * selected_album.songs.length)]
+    }
+    track_list.push(selected_song)
   }
 }
 
@@ -184,7 +191,13 @@ function heartSong() {
 }
 
 function tagSong() {
-  console.log(isTaggerOpen)
+  
+  var tagAdderList = document.getElementById('tagAdderList');
+  restricted_tag_list.forEach(song => {
+    tag = document.createElement("tagEntry")
+    tag.innerHTML = '<tag><a onclick="printHi()">' + song + '</a></tag>';
+    tagAdderList.appendChild(tag);
+  })
   if(isTaggerOpen){
     closeNav();
   } 
@@ -194,31 +207,62 @@ function tagSong() {
 }
 /* Set the width of the side navigation to 250px */
 function openNav() {
-  document.getElementById("mySidenav").style.width = "250px";
+  document.getElementById("tagAdderList").style.width = "20%";
+  document.getElementById("tagSearchFilter").focus();
   isTaggerOpen = true;
 }
 
 /* Set the width of the side navigation to 0 */
 function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("tagAdderList").style.width = "0";
   isTaggerOpen = false;
+}
+
+function searchFilter() {
+  // Declare variables
+  var input, filter, ul, li, a, i, txtValue;
+  input = document.getElementById('tagSearchFilter');
+  filter = input.value.toUpperCase();
+  ul = document.getElementById("tagAdderList");
+  li = ul.getElementsByTagName('tag');
+
+  // Loop through all list items, and hide those who don't match the search query
+  for (i = 0; i < li.length; i++) {
+    a = li[i].getElementsByTagName("a")[0];
+    txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
+function printHi() {
+  alert("hi Alex (:")
 }
 
 
 (async () => {
-  await fetch('/newSong', {
-    method: 'POST',
-    body: JSON.stringify({
-      song: "hi"
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
+  await fetch('/music/allmusic', {
+    method: 'GET',
   })
   .then(response => response.json())
   .then(data => {
-    track_list.push(new Song(data.path, data.album, data.title));
-  });
+    data.forEach(album => {
+      album_songs = []
+      album['songs'].forEach(song => {
+        album_songs.push(new Song(song['path'], album['title'], song['title'], album['thumbnail']));
+      })
+      cache.push(new Album(album['title'], album_songs, album['path']))
+    });
+  })
+
+  full_albums = cache;
+
+  var selected_album = full_albums[Math.floor(Math.random() * full_albums.length)]
+  var selected_song = selected_album.songs[Math.floor(Math.random() * selected_album.songs.length)]
+  track_list.push(selected_song)
 
   if (getCookie('volume') != undefined){
     volume_slider.value = getCookie('volume')*100;
@@ -251,4 +295,4 @@ function closeNav() {
 
   //Loads the first song from track_list
   loadTrack(track_index);
-})()
+})();
