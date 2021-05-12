@@ -48,11 +48,10 @@
   <!-- Tag Menu [NOT WORKING YET] -->
   <div id="tagAdderList" class="sidenav">
     <input type="text" id="tagSearchFilter" class="searchbar" style="font-size:25px;" placeholder="Search for tag..." onkeyup="searchFilter()">&times;</a>
-    <tag><a onclick="printHi()">Relaxing</a></tag>
-    <tag><a onclick="printHi()">Upbeat</a></tag>
-    <tag><a onclick="printHi()">Intense</a></tag>
-    <tag><a onclick="printHi()">Jazzy</a></tag>
+    <div id="curUserTags"></div>
+    <div id="tagSelections" class="tagselector"></div>
   </div>
+  
 
   <!-- Main script for the player -->
   <script src="player.js"></script>

@@ -161,7 +161,7 @@ i.fa-step-backward {
 	z-index: 1; /* Stay on top */
 	top: 0; /* Stay at the top */
 	right: 0;
-	background-color: #111; /* Black*/
+	background-color: rgba(0, 0, 0, .6); /* Black*/
 	overflow-x: hidden; /* Disable horizontal scroll */
 	padding-top: 20px; /* Place content 60px from the top */
 	transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
@@ -169,7 +169,7 @@ i.fa-step-backward {
   
   /* The navigation menu links */
   .sidenav a {
-	padding: 8px 8px 2px 8px;
+	padding: 8px 8px 0px 8px;
 	text-decoration: none;
 	font-size: 18px;
 	color: #818181;
@@ -189,7 +189,7 @@ i.fa-step-backward {
 	top: 0;
 	left: 0;
 	font-size: 36px;
-	margin-left: 0px;
+	width: 95%
   }
   
   /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -197,3 +197,43 @@ i.fa-step-backward {
 	.sidenav {padding-top: 15px;}
 	.sidenav a {font-size: 18px;}
   }
+
+  .tagselector {
+	padding: 8px 8px 2px 8px;
+	text-decoration: none;
+	font-size: 18px;
+	color: #818181;
+	display: block;
+	transition: 0.3s;
+	cursor: pointer;
+  }
+
+  /* .usertag a {
+	background-color: #ffffff;
+    height: 3%;
+    width: 15%;
+    border-radius: 40%;
+  } */
+
+.tag {
+	border-radius: 10px;
+	display: inline-block;
+	background-color: #2b2b2b;
+	color: #818181;
+	height: fit-content;
+	width: fit-content;
+	padding-top: 1%; padding-bottom: 1%;
+	padding-left: 2%; padding-right: 2%;
+	margin: 8px 8px 0px 8px;
+	align-items: center;
+	transition:0.25s;
+}
+
+.tag:hover {
+	color: #f1f1f1;
+	transition:0.25s;
+  }
+
+#tagRemover {
+	cursor:pointer;
+}

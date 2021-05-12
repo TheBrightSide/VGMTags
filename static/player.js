@@ -21,7 +21,12 @@ let updateTimer;
 let track_list = []; //Songs in queue
 let cache = []; //The unchanging cache
 let full_albums = []; //The changing cache
-let restricted_tag_list = ["Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
+
+let restricted_tag_list = ["Relaxing", "Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
+let current_tags = [];
+let current_user_tags = ["Relaxing", "Rock", "Stupid"];
+let addable_tags = document.getElementById('tagSelections');
+let cur_tags_html = document.getElementById('curUserTags');
 
 // Create new audio element
 let curr_track = document.createElement('audio');
@@ -124,18 +129,21 @@ async function nextTrack() {
   };
   loadTrack(track_index);
   playTrack();
+  clearTagList();
+  if (isTaggerOpen) {
+    importTagList();
+  }
 }
 
 async function prevTrack() {
-  await (async function() {
+  await (async function () {
     if (track_index > 0)
       track_index -= 1;
     else track_index = track_list.length;
   })();
-
-
   loadTrack(track_index);
   playTrack();
+  clearTagList();
 }
 
 function seekTo() {
@@ -190,20 +198,49 @@ function heartSong() {
   }
 }
 
-function tagSong() {
-  
-  var tagAdderList = document.getElementById('tagAdderList');
-  restricted_tag_list.forEach(song => {
-    tag = document.createElement("tagEntry")
-    tag.innerHTML = '<tag><a onclick="printHi()">' + song + '</a></tag>';
-    tagAdderList.appendChild(tag);
+function clearTagList() {
+  current_tags.forEach(tag => {
+    tag.remove();
   })
-  if(isTaggerOpen){
+  current_tags = [];
+}
+
+function importTagList() {
+  if(current_tags.length == 0){
+    restricted_tag_list.forEach(default_tag => {
+      tag = document.createElement("tagEntry")
+      tag.innerHTML = '<tag><a onclick="printHi()">' + default_tag + '</a></tag>';
+      addable_tags.appendChild(tag);
+      current_tags.push(tag);
+    });
+    //This part imports the song's custom tags (:
+    //blahblah.getTags(song)
+  }
+}
+
+function importUserTags() {
+  //import user tags from music.js
+  if(current_user_tags.length >= 1){ //This should be == 0
+    current_user_tags.forEach(user_tag => {
+      var tag = document.createElement("tag");
+      tag.className = "tag";
+      tag.innerHTML = '<span id="tagRemover"><i class="fas fa-times" onclick=printHi()></i></span>' + " " + user_tag;
+      tag.style.backgroundColor = stringToColour(user_tag);
+      console.log(stringToColour(user_tag))
+      cur_tags_html.appendChild(tag);
+    })
+  }
+}
+
+function tagSong() {
+  importTagList();
+  importUserTags();
+  if (isTaggerOpen) {
     closeNav();
-  } 
-  else{
+  }
+  else {
     openNav();
-  } 
+  }
 }
 /* Set the width of the side navigation to 250px */
 function openNav() {
@@ -242,21 +279,33 @@ function printHi() {
   alert("hi Alex (:")
 }
 
+function stringToColour(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  var colour = '#';
+  for (var i = 0; i < 3; i++) {
+    var value = (hash >> (i * 8)) & 0xFF;
+    colour += ('00' + value.toString(16)).substr(-2);
+  }
+  return colour;
+}
 
 (async () => {
   await fetch('/music/allmusic', {
     method: 'GET',
   })
-  .then(response => response.json())
-  .then(data => {
-    data.forEach(album => {
-      album_songs = []
-      album['songs'].forEach(song => {
-        album_songs.push(new Song(song['path'], album['title'], song['title'], album['thumbnail']));
-      })
-      cache.push(new Album(album['title'], album_songs, album['path']))
-    });
-  })
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(album => {
+        album_songs = []
+        album['songs'].forEach(song => {
+          album_songs.push(new Song(song['path'], album['title'], song['title'], album['thumbnail']));
+        })
+        cache.push(new Album(album['title'], album_songs, album['path']))
+      });
+    })
 
   full_albums = cache;
 
@@ -264,32 +313,31 @@ function printHi() {
   var selected_song = selected_album.songs[Math.floor(Math.random() * selected_album.songs.length)]
   track_list.push(selected_song)
 
-  if (getCookie('volume') != undefined){
-    volume_slider.value = getCookie('volume')*100;
+  if (getCookie('volume') != undefined) {
+    volume_slider.value = getCookie('volume') * 100;
     curr_track.volume = getCookie('volume');
     console.log(getCookie('volume'))
   }
-  else{
+  else {
     volume_slider.value = 50;
     curr_track.volume = .5;
     document.cookie = "volume=.5"
   }
-
 
   // Load the random background
   async function loadNextBackground() {
     await fetch('/newBackground', {
       method: 'GET',
     })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data.background);
-      document.body.style.background = "linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('" + data.background + "')";
-      document.body.style.backgroundSize = "cover";
-      document.body.style.backgroundRepeat = "no-repeat";
-    });
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.background);
+        document.body.style.background = "linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('" + data.background + "')";
+        document.body.style.backgroundSize = "cover";
+        document.body.style.backgroundRepeat = "no-repeat";
+      });
   }
-  
+
   //Loads the background
   loadNextBackground();
 
