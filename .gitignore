@@ -7,5 +7,10 @@ Music/**
 node_modules
 node_modules/**
 package-lock.json
+yarn.lock
 .vscode
 .vscode/**
+cache
+cache/**
+db
+db/**
