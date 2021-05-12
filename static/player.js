@@ -21,6 +21,7 @@ let updateTimer;
 let track_list = []; //Songs in queue
 let cache = []; //The unchanging cache
 let full_albums = []; //The changing cache
+let restricted_tag_list = ["Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
 
 // Create new audio element
 let curr_track = document.createElement('audio');
@@ -190,7 +191,13 @@ function heartSong() {
 }
 
 function tagSong() {
-  console.log(isTaggerOpen)
+  
+  var tagAdderList = document.getElementById('tagAdderList');
+  restricted_tag_list.forEach(song => {
+    tag = document.createElement("tagEntry")
+    tag.innerHTML = '<tag><a onclick="printHi()">' + song + '</a></tag>';
+    tagAdderList.appendChild(tag);
+  })
   if(isTaggerOpen){
     closeNav();
   } 
