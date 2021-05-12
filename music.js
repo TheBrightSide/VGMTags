@@ -1,17 +1,25 @@
 const express = require('express');
 const app = express();
+const { IPDatabase, TagDatabase } = require('./database');
 const fs = require('fs');
+const path = require('path');
 
-const { 
-    getMusicFilenames,
+const {
     getCachedMusicFilenames,
-    random,
     getMusicFolders
 } = require('./util.js');
 
-const FOLDERTREE_ENDPOINT = '/music/foldertree';
-const TAGS_ENDPOINT = '/music/tags';
-const ALLMUSIC_ENDPOINT = '/music/allmusic';
+const {
+    FOLDERTREE_ENDPOINT,
+    TAGS_ENDPOINT,
+    ALLMUSIC_ENDPOINT,
+    IPS_DB_PATH,
+    TAGS_DB_PATH
+} = require('./consts.js');
+
+const ipDB = new IPDatabase(IPS_DB_PATH);
+const tagDB = new TagDatabase(TAGS_DB_PATH);
+console.log('Loaded DBs.');
 
 app.get('/foldertree/', (req, res) => {
     try {
@@ -39,19 +47,17 @@ app.get('/foldertree/:folderName', (req, res) => {
 
 app.use('/foldertree', express.static('Music'));
 
-app.get('/randomSong', (req, res) => {
-    throw new Error('not implemented');
-})
-
 app.get('/allmusic', (req, res) => {
     var { count, offset } = req.query;
+    count = parseInt(count);
+    offset = parseInt(offset);
 
     getCachedMusicFilenames()
         .then(arr => {
-            if (count === undefined && offset === undefined)
-                res.send(arr)
+            if ((count === undefined || isNaN(count)) && (offset === undefined || isNaN(offset)))
+                res.send(arr);
             else {
-                res.send(arr.slice(parseInt(offset), parseInt(offset) + parseInt(count)))
+                res.send(arr.slice(offset, offset + count));
             }
         })
         .catch(e => {
@@ -63,10 +69,46 @@ app.get('/allmusic', (req, res) => {
         });
 });
 
-app.get('/tags', (req, res) => {
-    // uh not implemented yet idk
-    res.status(404);
-    res.send('nothing m8');
+const DEFAULT_TAGS = ['calming', 'cheerful', 'bopping'];
+
+app.get('/tags/:folderName/:fileName', (req, res) => {
+    const { action } = req.query;
+    const { folderName, fileName } = req.params;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    if (!fs.existsSync(path.join('Music', folderName, fileName))) {
+        res.status(400);
+        res.send({
+            error: "path doesn't exist"
+        });
+    } else {
+        switch (action) {
+            case 'vote': {
+                const { tag } = req.query;
+                if (!tag) {
+                    res.send({
+                        error: "insufficient query parameters"
+                    });
+                } else {
+                    // do stuff
+                }
+                break;
+            }
+            case 'create': {
+                res.send('yes ok you create tag');
+                break;
+            }
+            case 'availabletags': {
+                res.send(DEFAULT_TAGS);
+                break;
+            }
+            default: {
+                res.send({
+                    error: "invalid action"
+                })
+            }
+        }
+    }
 });
 
 module.exports = app;

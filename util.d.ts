@@ -1,18 +1,19 @@
-import { TagType } from '@types/jsmediatags/types';
-
-interface PathSong {
+declare interface PathSong {
     title: string;
     path: string;
 };
 
-interface PathAlbum {
+declare interface PathAlbum {
     title: string;
-    songs: Song[];
-    thumbnail: string;
+    songs: PathSong[];
+    thumbnail: string | null;
     path: string;
 };
 
 export async function readTags(fileName: string): Promise<TagType>;
-export async function getMusicFolders(): string[];
-export async function getMusicFilenames(folderName: string): Promise<PathAlbum[]>;
-export async function getCachedMusicFilenames(folderName: string): Promise<PathAlbum[]>;
+export function getMusicFolders(): string[];
+export async function getMusicFilenames(folderName?: string): Promise<PathAlbum[]>;
+export async function getCachedMusicFilenames(folderName?: string): Promise<PathAlbum[]>;
+export function random(min: number, max: number): number;
+export function URLToFilePath(url: string): string;
+export function filePathToFolderTreeURL(filepath: string): string;

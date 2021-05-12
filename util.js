@@ -1,9 +1,16 @@
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
+const path = require('path');
 
-const FOLDERTREE_ENDPOINT = '/music/foldertree';
-const TAGS_ENDPOINT = '/music/tags';
-const ALLMUSIC_ENDPOINT = '/music/allmusic';
+const {
+    FOLDERTREE_ENDPOINT,
+    TAGS_ENDPOINT,
+    ALLMUSIC_ENDPOINT
+} = require('./consts.js');
+
+function random(min, max) {
+    return Math.floor(Math.random() * (max - min) ) + min;
+}
 
 async function readTags(fileName) {
     return new Promise((resolve, reject) => {
@@ -70,14 +77,26 @@ async function getCachedMusicFilenames(folderName) {
     }
 }
 
-function random(min, max) {
-    return Math.floor(Math.random() * (max - min) ) + min;
+function URLToFilePath(url) {
+    return path.format({
+        dir: path.join('./Music', path.normalize(url).split('/').slice(-2, -1).join(path.sep)),
+        base: path.normalize(url).split('/').slice(-1).join(path.sep)
+    });
+}
+
+function filePathToFolderTreeURL(filepath) {
+    return '/' + [
+        'music', 'foldertree',
+        ...filepath.split(path.sep).slice(-2)
+    ].join('/');
 }
 
 module.exports = {
+    random,
     readTags,
+    getMusicFolders,
     getMusicFilenames,
     getCachedMusicFilenames,
-    random,
-    getMusicFolders
+    URLToFilePath,
+    filePathToFolderTreeURL
 }
