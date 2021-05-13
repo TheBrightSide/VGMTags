@@ -130,9 +130,11 @@ async function nextTrack() {
   };
   loadTrack(track_index);
   playTrack();
-  clearTagList();
+  resetTagSelector();
   if (isTaggerOpen) {
     importTagList();
+    importUserTags();
+    searchFilter();
   }
 }
 
@@ -144,7 +146,12 @@ async function prevTrack() {
   })();
   loadTrack(track_index);
   playTrack();
-  clearTagList();
+  resetTagSelector();
+  if (isTaggerOpen) {
+    importTagList();
+    importUserTags();
+    searchFilter();
+  }
 }
 
 function seekTo() {
@@ -210,14 +217,33 @@ function searchFilter() {
   li = ul.getElementsByTagName('tag');
 
   // Loop through all list items, and hide those who don't match the search query
+  var hidden_items = 0;
   for (i = 0; i < li.length; i++) {
     a = li[i].getElementsByTagName("a")[0];
     txtValue = a.textContent || a.innerText;
     if (txtValue.toUpperCase().indexOf(filter) > -1) {
       li[i].style.display = "";
     } else {
+      if(document.getElementById("addCustomTag")){
+        if(txtValue.toUpperCase() == input.value.toUpperCase().substring(0, input.value.length-1)){
+          continue;
+        }
+      }
       li[i].style.display = "none";
+      hidden_items++;
     }
+  }
+  if(document.getElementById("addCustomTag")) ++hidden_items;
+  if(hidden_items >= li.length){
+    if(document.getElementById("addCustomTag")){
+      document.getElementById("addCustomTag").innerHTML = '<a onclick="addCustomTag(this)">' + input.value + '</a>'
+    } else{
+      customAdd = document.createElement("custom")
+      customAdd.innerHTML = '<tag id="addCustomTag"><a onclick="addCustomTag(this)">' + input.value + '</a></tag>';
+      document.getElementById("tagSelections").appendChild(customAdd);
+    }
+  } else{
+    if(document.getElementById("addCustomTag")) document.getElementById("addCustomTag").remove();
   }
 }
 
@@ -226,31 +252,31 @@ function selectTag(tag){
     console.log(current_user_tags)
     alert("You can't add any more tags to this song. Remove some or move on!")
   }
-  else if(current_user_tags.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase())){
+  else if(current_user_tags.map(cur_tag => cur_tag.textContent.toLowerCase()).includes(tag.textContent.toLowerCase())){
     alert("You have already added that tag, pick a different one!")
   }
   else{
-    addUserTag(tag.textContent)
-    current_user_tags.push(tag.textContent)
+    addUserTag(tag)
   }
   console.log(current_user_tags)
 }
 
-//WHY IS THIS NOT FUCKING WORKING DOAHOFEHOWIJOIEJHROIEUHIRAUHIWHRHAHRHARHAHRA RGAHRGHAGRHARHG
 function removeTag(tag){
-  console.log(tag.parentNode.parentNode.innerText);
-  console.log(current_user_tags)
-  current_user_tags.splice(current_user_tags.indexOf(tag.parentNode.parentNode.innerText));
+  current_user_tags.splice(current_user_tags.indexOf(tag.parentElement.parentElement), 1)
   tag.parentElement.parentElement.remove();
   tag.parentElement.remove();
   tag.remove();
 }
 
-function clearTagList() {
+function resetTagSelector() {
   current_tags.forEach(tag => {
     tag.remove();
   })
   current_tags = [];
+  current_user_tags.forEach(tag => {
+    tag.remove();
+  })
+  current_user_tags = [];
 }
 
 function importTagList() {
@@ -268,7 +294,7 @@ function importTagList() {
 
 function importUserTags() {
   //import user tags from music.js
-  if(current_user_tags.length >= 1){ //This should be == 0
+  if(current_user_tags.length == 0){ //This should be == 0
     current_user_tags.forEach(user_tag => {
       addUserTag(user_tag);
     })
@@ -278,15 +304,16 @@ function importUserTags() {
 function addUserTag(user_tag) {
   var tag = document.createElement("tag");
   tag.className = "tag";
-  tag.innerHTML = '<span id="tagRemover"><i class="fas fa-times" onclick=removeTag(this)></i> </span>' + user_tag;
-  tag.style.backgroundColor = stringToColour(user_tag);
-  tag_colors = tag.style.backgroundColor.substring(4,tag.style.backgroundColor.length-1).split(', ')
-  if (tag_colors[0]*0.299 + tag_colors[1]*0.587 + tag_colors[2]*0.114 > 186){
+  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
+  tag.style.backgroundColor = stringToColour(user_tag.textContent);
+  tag_colors = tag.style.backgroundColor.substring(4,tag.style.backgroundColor.length-1).split(', ');
+  if ((tag_colors[0]*0.299 + tag_colors[1]*0.587 + tag_colors[2]*0.114) > 160){
     tag.style.color = "#000000"
   }
   else{
     tag.style.color = "#ffffff"
   }
+  current_user_tags.push(tag);
   cur_tags_html.appendChild(tag);
 }
 
@@ -378,7 +405,7 @@ function stringToColour(str) {
       });
   }
 
-  await fetch('/music/tags/AR Games/Graffiti.mp3?action=availabletags', {
+  await fetch('/music/tags/1080° Snowboarding/This Is A Test.mp3?action=availabletags', {
     method: 'GET',
   })
     .then(response => response.json())
