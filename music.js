@@ -69,7 +69,7 @@ app.get('/allmusic', (req, res) => {
         });
 });
 
-const DEFAULT_TAGS = ['calming', 'cheerful', 'bopping'];
+const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall"];;
 
 app.get('/tags/:folderName/:fileName', (req, res) => {
     const { action } = req.query;
@@ -80,7 +80,7 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
         res.status(400);
         res.send({
             error: "path doesn't exist"
-        });
+        });   
     } else {
         switch (action) {
             case 'vote': {

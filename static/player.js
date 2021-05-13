@@ -23,8 +23,9 @@ let cache = []; //The unchanging cache
 let full_albums = []; //The changing cache
 
 let restricted_tag_list = ["Relaxing", "Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
+
 let current_tags = [];
-let current_user_tags = ["Relaxing", "Rock", "Stupid"];
+let current_user_tags = [];
 let addable_tags = document.getElementById('tagSelections');
 let cur_tags_html = document.getElementById('curUserTags');
 
@@ -198,69 +199,14 @@ function heartSong() {
   }
 }
 
-function clearTagList() {
-  current_tags.forEach(tag => {
-    tag.remove();
-  })
-  current_tags = [];
-}
-
-function importTagList() {
-  if(current_tags.length == 0){
-    restricted_tag_list.forEach(default_tag => {
-      tag = document.createElement("tagEntry")
-      tag.innerHTML = '<tag><a onclick="printHi()">' + default_tag + '</a></tag>';
-      addable_tags.appendChild(tag);
-      current_tags.push(tag);
-    });
-    //This part imports the song's custom tags (:
-    //blahblah.getTags(song)
-  }
-}
-
-function importUserTags() {
-  //import user tags from music.js
-  if(current_user_tags.length >= 1){ //This should be == 0
-    current_user_tags.forEach(user_tag => {
-      var tag = document.createElement("tag");
-      tag.className = "tag";
-      tag.innerHTML = '<span id="tagRemover"><i class="fas fa-times" onclick=printHi()></i></span>' + " " + user_tag;
-      tag.style.backgroundColor = stringToColour(user_tag);
-      console.log(stringToColour(user_tag))
-      cur_tags_html.appendChild(tag);
-    })
-  }
-}
-
-function tagSong() {
-  importTagList();
-  importUserTags();
-  if (isTaggerOpen) {
-    closeNav();
-  }
-  else {
-    openNav();
-  }
-}
-/* Set the width of the side navigation to 250px */
-function openNav() {
-  document.getElementById("tagAdderList").style.width = "20%";
-  document.getElementById("tagSearchFilter").focus();
-  isTaggerOpen = true;
-}
-
-/* Set the width of the side navigation to 0 */
-function closeNav() {
-  document.getElementById("tagAdderList").style.width = "0";
-  isTaggerOpen = false;
-}
+// TAGGING SYSTEM
 
 function searchFilter() {
-  // Declare variables
+  // Declare variables 
   var input, filter, ul, li, a, i, txtValue;
   input = document.getElementById('tagSearchFilter');
   filter = input.value.toUpperCase();
-  ul = document.getElementById("tagAdderList");
+  ul = document.getElementById("tagSelections");
   li = ul.getElementsByTagName('tag');
 
   // Loop through all list items, and hide those who don't match the search query
@@ -273,6 +219,99 @@ function searchFilter() {
       li[i].style.display = "none";
     }
   }
+}
+
+function selectTag(tag){
+  if(current_user_tags.length >= 5){
+    console.log(current_user_tags)
+    alert("You can't add any more tags to this song. Remove some or move on!")
+  }
+  else if(current_user_tags.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase())){
+    alert("You have already added that tag, pick a different one!")
+  }
+  else{
+    addUserTag(tag.textContent)
+    current_user_tags.push(tag.textContent)
+  }
+  console.log(current_user_tags)
+}
+
+//WHY IS THIS NOT FUCKING WORKING DOAHOFEHOWIJOIEJHROIEUHIRAUHIWHRHAHRHARHAHRA RGAHRGHAGRHARHG
+function removeTag(tag){
+  console.log(tag.parentNode.parentNode.innerText);
+  console.log(current_user_tags)
+  current_user_tags.splice(current_user_tags.indexOf(tag.parentNode.parentNode.innerText));
+  tag.parentElement.parentElement.remove();
+  tag.parentElement.remove();
+  tag.remove();
+}
+
+function clearTagList() {
+  current_tags.forEach(tag => {
+    tag.remove();
+  })
+  current_tags = [];
+}
+
+function importTagList() {
+  if(current_tags.length == 0){
+    restricted_tag_list.forEach(default_tag => {
+      tag = document.createElement("tagEntry")
+      tag.innerHTML = '<tag><a onclick="selectTag(this)">' + default_tag + '</a></tag>';
+      addable_tags.appendChild(tag);
+      current_tags.push(tag);
+    });
+    //This part imports the song's custom tags (:
+    //blahblah.getTags(song)
+  }
+}
+
+function importUserTags() {
+  //import user tags from music.js
+  if(current_user_tags.length >= 1){ //This should be == 0
+    current_user_tags.forEach(user_tag => {
+      addUserTag(user_tag);
+    })
+  }
+}
+
+function addUserTag(user_tag) {
+  var tag = document.createElement("tag");
+  tag.className = "tag";
+  tag.innerHTML = '<span id="tagRemover"><i class="fas fa-times" onclick=removeTag(this)></i> </span>' + user_tag;
+  tag.style.backgroundColor = stringToColour(user_tag);
+  tag_colors = tag.style.backgroundColor.substring(4,tag.style.backgroundColor.length-1).split(', ')
+  if (tag_colors[0]*0.299 + tag_colors[1]*0.587 + tag_colors[2]*0.114 > 186){
+    tag.style.color = "#000000"
+  }
+  else{
+    tag.style.color = "#ffffff"
+  }
+  cur_tags_html.appendChild(tag);
+}
+
+function tagSong() {
+  importTagList();
+  importUserTags();
+  if (isTaggerOpen) {
+    closeNav();
+  }
+  else {
+    openNav();
+  }
+}
+
+/* Set the width of the side navigation to 250px */
+function openNav() {
+  document.getElementById("tagAdderList").style.width = "20%";
+  document.getElementById("tagSearchFilter").focus();
+  isTaggerOpen = true;
+}
+
+/* Set the width of the side navigation to 0 */
+function closeNav() {
+  document.getElementById("tagAdderList").style.width = "0";
+  isTaggerOpen = false;
 }
 
 function printHi() {
@@ -306,6 +345,7 @@ function stringToColour(str) {
         cache.push(new Album(album['title'], album_songs, album['path']))
       });
     })
+    
 
   full_albums = cache;
 
@@ -337,6 +377,19 @@ function stringToColour(str) {
         document.body.style.backgroundRepeat = "no-repeat";
       });
   }
+
+  await fetch('/music/tags/AR Games/Graffiti.mp3?action=availabletags', {
+    method: 'GET',
+  })
+    .then(response => response.json())
+    .then(data => {
+      restricted_tag_list = data.map(entry => entry.replace(/\w\S*/g, function(txt){
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }));
+    });
+
+  console.log(restricted_tag_list)
+  
 
   //Loads the background
   loadNextBackground();

@@ -176,6 +176,7 @@ i.fa-step-backward {
 	display: block;
 	transition: 0.3s;
 	cursor: pointer;
+	width:fit-content;
   }
   
   /* When you mouse over the navigation links, change their color */
