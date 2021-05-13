@@ -92,6 +92,10 @@ function filePathToFolderTreeURL(filepath) {
     ].join('/');
 }
 
+function isPathSame(path1, path2) {
+    return path.normalize(path1) === path.normalize(path2);
+}
+
 module.exports = {
     random,
     readTags,
@@ -99,5 +103,6 @@ module.exports = {
     getMusicFilenames,
     getCachedMusicFilenames,
     URLToFilePath,
-    filePathToFolderTreeURL
+    filePathToFolderTreeURL,
+    isPathSame
 }

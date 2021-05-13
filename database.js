@@ -95,9 +95,13 @@ class TagDatabase extends JSONDatabase {
     }
 
     tagExists(filePath, tagName) {
-        return this.readDB()
-            .find(e => e.path === filePath).tags
-                .map(e => e.tagName).includes(tagName);
+        try {
+            return this.readDB()
+                .find(e => e.path === filePath).tags
+                    .map(e => e.tagName).includes(tagName);
+        } catch {
+            return false;
+        }
     }
 
     modifyByPath(filePath, data) {

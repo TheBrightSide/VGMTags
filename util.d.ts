@@ -17,3 +17,4 @@ export async function getCachedMusicFilenames(folderName?: string): Promise<Path
 export function random(min: number, max: number): number;
 export function URLToFilePath(url: string): string;
 export function filePathToFolderTreeURL(filepath: string): string;
+export function isPathSame(path1: string, path2: string): boolean;
