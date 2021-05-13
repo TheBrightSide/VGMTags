@@ -161,6 +161,7 @@ i.fa-step-backward {
 	z-index: 1; /* Stay on top */
 	top: 0; /* Stay at the top */
 	right: 0;
+	box-sizing: border-box;
 	background-color: rgba(0, 0, 0, .6); /* Black*/
 	overflow-x: hidden; /* Disable horizontal scroll */
 	padding-top: 20px; /* Place content 60px from the top */
@@ -190,7 +191,11 @@ i.fa-step-backward {
 	top: 0;
 	left: 0;
 	font-size: 36px;
-	width: 95%
+	outline: none;
+	border: none;
+	width: 100%;
+	color: white;
+	background: rgba(255, 255, 255, 0);
   }
   
   /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
@@ -237,4 +242,8 @@ i.fa-step-backward {
 
 #tagRemover {
 	cursor:pointer;
+}
+
+.removeTagButton {
+	margin-right: 4px;
 }

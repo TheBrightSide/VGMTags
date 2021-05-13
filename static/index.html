@@ -47,6 +47,20 @@
 
   <!-- Tag Menu [NOT WORKING YET] -->
   <div id="tagAdderList" class="sidenav">
+    <style>
+    ::-webkit-scrollbar{
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, .6);; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #555; 
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgb(136, 136, 136); 
+    }
+    </style>
     <input type="text" id="tagSearchFilter" class="searchbar" style="font-size:25px;" placeholder="Search for tag..." onkeyup="searchFilter()">&times;</a>
     <div id="curUserTags"></div>
     <div id="tagSelections" class="tagselector"></div>
