@@ -39,8 +39,9 @@ declare class TagDatabase extends JSONDatabase<TagDatabaseModel> {
     searchByPath(filePath: string): TagDatabaseModel;
     tagExists(filePath: string, tagName: string): void;
     modifyByPath(filePath: string, data: TagDatabaseModel): void;
-    addTagToSong(filePath: string, tagName: string): void;
+    addTagToSong(filePath: string, tagNames: string[]): void;
     incrementTagOnSong(filePath: string, tagName: string): void;
+    decrementTagOnSong(filePath: string, tagName: string): void;
 }
 
 export { JSONDatabase, IPDatabase, TagDatabase };

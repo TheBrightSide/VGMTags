@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+const path = require('path').posix;
 
 class JSONDatabase {
     constructor(dbPath) {
@@ -19,7 +19,6 @@ class JSONDatabase {
             try {
                 JSON.parse(fs.readFileSync(this.dbPath));
             } catch (e) {
-                console.log('error!');
                 fs.writeFileSync(this.dbPath, '[]');
             }
         }
@@ -68,19 +67,28 @@ class IPDatabase extends JSONDatabase {
     }
 
     addTaggedSongForIP(ipAddr, taggedSongPath, tags) {
-        // if (!this._validateIPAddress(ipAddr)) throw new Error('invalid ip address');
+        tags = tags.map(e => e.toLowerCase());
+        taggedSongPath = path.normalize(taggedSongPath);
         if (!this.searchByIP(ipAddr)) {
+            console.log('why');
             this.appendDB({
                 ip: ipAddr,
                 taggedSongs: [ { path: taggedSongPath, tags: [ ...tags ] } ]
             });
         } else {
             let data = this.searchByIP(ipAddr);
-            data.taggedSongs.push({
-                path: taggedSongPath,
-                tags: [ ...tags ]
-            });
-            this.modifyByIP(ipAddr, data);
+            if (data.taggedSongs.findIndex(e => e.path === taggedSongPath) !== -1) {
+                data.taggedSongs[
+                    data.taggedSongs.findIndex(e => e.path === taggedSongPath)
+                ].tags.push(...tags)
+                this.modifyByIP(ipAddr, data);
+            } else {
+                data.taggedSongs.push({
+                    path: taggedSongPath,
+                    tags: [ ...tags ]
+                });
+                this.modifyByIP(ipAddr, data);
+            }
         }
     }
 }
@@ -91,10 +99,12 @@ class TagDatabase extends JSONDatabase {
     }
 
     searchByPath(filePath) {
+        filePath = path.normalize(filePath);
         return this.readDB().find(e => e.path === filePath);
     }
 
     tagExists(filePath, tagName) {
+        filePath = path.normalize(filePath);
         try {
             return this.readDB()
                 .find(e => e.path === filePath).tags
@@ -105,35 +115,37 @@ class TagDatabase extends JSONDatabase {
     }
 
     modifyByPath(filePath, data) {
+        filePath = path.normalize(filePath);
         var itemIdx = this.readDB().findIndex(e => e.path === filePath);
         this.modifyDB(itemIdx, data);
     }
 
-    addTagToSong(filePath, tagName) {
-        tagName = tagName.toLowerCase();
+    addTagToSong(filePath, tagNames) {
+        filePath = path.normalize(filePath);
+        tagNames = tagNames.map(e => {
+            return {
+                tagName: e.toLowerCase(),
+                votes: 0
+            } 
+        });
         if (!this.searchByPath(filePath)) {
             this.appendDB({
                 path: filePath,
-                tags: [{
-                    tagName: tagName,
-                    votes: 0
-                }]
+                tags: [ ...tagNames ]
             });
         } else {
-            if (this.tagExists(filePath, tagName)) {
+            if (tagNames.findIndex(e => this.tagExists(filePath, e.tagName)) !== -1) {
                 throw new Error('tag already exists');
             } else {
                 let data = this.searchByPath(filePath);
-                data.tags.push({
-                    tagName: tagName,
-                    votes: 0
-                });
+                data.tags.push( ...tagNames );
                 this.modifyByPath(filePath, data);
             }
         }
     }
 
     incrementTagOnSong(filePath, tagName) {
+        filePath = path.normalize(filePath);
         tagName = tagName.toLowerCase();
         if (this.searchByPath(filePath)) {
             if (this.tagExists(filePath, tagName)) {
@@ -141,6 +153,24 @@ class TagDatabase extends JSONDatabase {
                 data.tags[
                     data.tags.findIndex(e => e.tagName === tagName)
                 ].votes++;
+                this.modifyByPath(filePath, data);
+            } else {
+                throw new Error('tag doesn\'t exist');
+            }
+        } else {
+            throw new Error('song doesn\'t exist');
+        }
+    }
+
+    decrementTagOnSong(filePath, tagName) {
+        filePath = path.normalize(filePath);
+        tagName = tagName.toLowerCase();
+        if (this.searchByPath(filePath)) {
+            if (this.tagExists(filePath, tagName)) {
+                let data = this.searchByPath(filePath);
+                data.tags[
+                    data.tags.findIndex(e => e.tagName === tagName)
+                ].votes--;
                 this.modifyByPath(filePath, data);
             } else {
                 throw new Error('tag doesn\'t exist');

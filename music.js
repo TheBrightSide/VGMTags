@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const { IPDatabase, TagDatabase } = require('./database');
 const fs = require('fs');
-const path = require('path');
+const path = require('path').posix;
 
 const {
     getCachedMusicFilenames,
@@ -89,55 +89,77 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
     } else {
         switch (action) {
             case 'vote': {
-                if (!!ipDB.searchByIP(ip)) {
-                    if (ipDB.searchByIP(ip).taggedSongs.filter(e => 
-                        isPathSame(e.path, songPath)).length >= 1) {
-                        res.status(403);
-                        res.send({
-                            error: "song already tagged"
-                        });
-                        return;
-                    }
-                } else {
-                    const { tags } = req.body;
+                if (!req.body.tags || req.body.tags.length == 0 || !Array.isArray(req.body.tags)) {
+                    res.status(400);
+                    res.send({
+                        error: "insufficient or invalid body parameters"
+                    });
+                    return;
+                }
 
-                    if (!tags || tags.length == 0 || !Array.isArray(tags)) {
-                        res.status(400);
-                        res.send({
-                            error: "insufficient or invalid body parameters"
-                        });
-                        return;
-                    } else {
-                        if (!DEFAULT_ONLY) {
-                            if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
+                const tags = req.body.tags.map(e => e.toLowerCase());
+
+                // tag checks
+                if (!!ipDB.searchByIP(ip)) {
+                    let customTags = tags.filter(e => !DEFAULT_TAGS.includes(e));
+                    let defaultTags = tags.filter(e => DEFAULT_TAGS.includes(e));
+                    if (ipDB.searchByIP(ip).taggedSongs.findIndex(e => isPathSame(e.path, songPath)) != -1) {
+                        let currIPTaggedSong = ipDB.searchByIP(ip).taggedSongs.filter(e => isPathSame(e.path, songPath))[0];
+                        if (!DEFAULT_ONLY && customTags.length > 0) {
+                            res.status(403);
+                            res.send({
+                                error: "song already tagged with a custom tag"
+                            });
+                            return;
+                        }
+
+                        for (var tag of defaultTags) {
+                            if (currIPTaggedSong.tags.includes(tag)) {
                                 res.status(403);
                                 res.send({
-                                    error: "too many custom tags"
-                                });
-                                return;
-                            }
-                        } else {
-                            if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 0) {
-                                res.status(403);
-                                res.send({
-                                    error: "too many custom tags"
+                                    error: "song already tagged with tag " + tag + " from this user"
                                 });
                                 return;
                             }
                         }
-
-                        ipDB.addTaggedSongForIP(ip, songPath, tags);
-
-                        res.send({
-                            success: true,
-                            votedFor: tags
-                        });
                     }
-                }                
+                }
+
+                if (!DEFAULT_ONLY) {
+                    if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
+                        res.status(403);
+                        res.send({
+                            error: "too many custom tags"
+                        });
+                        return;
+                    }
+                } else {
+                    if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 0) {
+                        res.status(403);
+                        res.send({
+                            error: "too many custom tags"
+                        });
+                        return;
+                    }
+                }
+
+                try {
+                    tagDB.addTagToSong(songPath, tags);
+                    ipDB.addTaggedSongForIP(ip, songPath, tags);
+                    tags.forEach(e => tagDB.incrementTagOnSong(songPath, e));
+                } catch (e) {
+                    console.log(e);
+                    tags.forEach(e => tagDB.incrementTagOnSong(songPath, e));
+                }
+
+                res.send({
+                    success: true,
+                    votedFor: tags
+                });
                 break;
             }
-            case 'cleartags': {
-                // clear tag
+            case 'cleartag': {
+                
                 break;
             }
             case 'create': {

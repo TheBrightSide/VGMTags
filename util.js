@@ -1,6 +1,6 @@
 const fs = require('fs');
 const jsmediatags = require('jsmediatags');
-const path = require('path');
+const path = require('path').posix;
 
 const {
     FOLDERTREE_ENDPOINT,
