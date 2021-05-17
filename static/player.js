@@ -28,6 +28,7 @@ let current_tags = [];
 let current_user_tags = [];
 let addable_tags = document.getElementById('tagSelections');
 let cur_tags_html = document.getElementById('curUserTags');
+let used_custom_tag = false;
 
 // Create new audio element
 let curr_track = document.createElement('audio');
@@ -225,7 +226,7 @@ function searchFilter() {
       li[i].style.display = "";
     } else {
       if(document.getElementById("addCustomTag")){
-        if(txtValue.toUpperCase() == input.value.toUpperCase().substring(0, input.value.length-1)){
+        if(txtValue.replace('Add custom tag:', '').toUpperCase() == input.value.toUpperCase().substring(0, input.value.length-1)){
           continue;
         }
       }
@@ -236,10 +237,10 @@ function searchFilter() {
   if(document.getElementById("addCustomTag")) ++hidden_items;
   if(hidden_items >= li.length){
     if(document.getElementById("addCustomTag")){
-      document.getElementById("addCustomTag").innerHTML = '<a onclick="addCustomTag(this)">' + input.value + '</a>'
+      document.getElementById("addCustomTag").innerHTML = '<a onclick="selectTag(this)">Add custom tag:<br><br>' + input.value + '</a>' //change to addCustomTag
     } else{
       customAdd = document.createElement("custom")
-      customAdd.innerHTML = '<tag id="addCustomTag"><a onclick="addCustomTag(this)">' + input.value + '</a></tag>';
+      customAdd.innerHTML = '<tag id="addCustomTag"><a onclick="selectTag(this)">Add custom tag:<br><br>' + input.value + '</a></tag>';
       document.getElementById("tagSelections").appendChild(customAdd);
     }
   } else{
@@ -256,12 +257,17 @@ function selectTag(tag){
     alert("You have already added that tag, pick a different one!")
   }
   else{
-    addUserTag(tag)
+    if(!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase())){
+      if(used_custom_tag){
+        alert("You can only use one custom tag per song");
+      } else addCustomTag(tag);
+    } else addUserTag(tag);
   }
   console.log(current_user_tags)
 }
 
 function removeTag(tag){
+  if(!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.parentElement.parentElement.textContent.toLowerCase())) used_custom_tag = false;
   current_user_tags.splice(current_user_tags.indexOf(tag.parentElement.parentElement), 1)
   tag.parentElement.parentElement.remove();
   tag.parentElement.remove();
@@ -296,12 +302,33 @@ function importUserTags() {
   //import user tags from music.js
   if(current_user_tags.length == 0){ //This should be == 0
     current_user_tags.forEach(user_tag => {
-      addUserTag(user_tag);
+      if(!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase()) && !used_custom_tag){
+        addCustomTag(tag);
+      } else addUserTag(tag);
     })
   }
 }
 
+function addCustomTag(user_tag) {
+  console.log("custom tag")
+  var tag = document.createElement("tag");
+  tag.className = "tag";
+  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '');
+  tag.style.backgroundColor = stringToColour(user_tag.textContent);
+  tag_colors = tag.style.backgroundColor.substring(4,tag.style.backgroundColor.length-1).split(', ');
+  if ((tag_colors[0]*0.299 + tag_colors[1]*0.587 + tag_colors[2]*0.114) > 160){
+    tag.style.color = "#000000"
+  }
+  else{
+    tag.style.color = "#ffffff"
+  }
+  current_user_tags.push(tag);
+  cur_tags_html.appendChild(tag);
+  used_custom_tag = true;
+}
+
 function addUserTag(user_tag) {
+  console.log("normal tag")
   var tag = document.createElement("tag");
   tag.className = "tag";
   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
@@ -405,11 +432,16 @@ function stringToColour(str) {
       });
   }
 
-  await fetch('/music/tags/1080° Snowboarding/This Is A Test.mp3?action=availabletags', {
-    method: 'GET',
+  await fetch('/music/tags/Nintendo 3DS/Notifications.mp3', {
+    method: 'POST',
+    body: JSON.stringify({'action': 'availabletags'}),
+    headers: {
+      'Content-Type': 'application/json'
+    }
   })
     .then(response => response.json())
     .then(data => {
+      console.log(data);
       restricted_tag_list = data.map(entry => entry.replace(/\w\S*/g, function(txt){
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       }));
