@@ -31,7 +31,7 @@ declare class IPDatabase extends JSONDatabase<IPDatabaseModel> {
     _validateIPAddress(ipAddr: string): boolean;
     searchByIP(ipAddr: string): IPDatabaseModel;
     modifyByIP(ipAddr: string, data: IPDatabaseModel): void;
-    addTaggedSongForIP(ipAddr: string, taggedSongPath: string, tags: string[]): void;
+    addTaggedSongForIP(ipAddr: string, taggedSongPath: string, tag: string): void;
 }
 
 declare class TagDatabase extends JSONDatabase<TagDatabaseModel> {
@@ -39,7 +39,7 @@ declare class TagDatabase extends JSONDatabase<TagDatabaseModel> {
     searchByPath(filePath: string): TagDatabaseModel;
     tagExists(filePath: string, tagName: string): void;
     modifyByPath(filePath: string, data: TagDatabaseModel): void;
-    addTagToSong(filePath: string, tagNames: string[]): void;
+    addTagToSong(filePath: string, tagName: string): void;
     incrementTagOnSong(filePath: string, tagName: string): void;
     decrementTagOnSong(filePath: string, tagName: string): void;
 }

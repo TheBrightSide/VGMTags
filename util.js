@@ -25,7 +25,7 @@ async function readTags(fileName) {
 function getMusicFolders() {
     return fs.readdirSync('./Music', { withFileTypes: true })
         .filter(dirent => dirent.isDirectory())
-        .filter(dirent => dirent.existsSync("thumbnail.png"))
+        .filter(dirent => fs.existsSync(path.join('Music', dirent.name, 'thumbnail.png')))
         .map(dirent => dirent.name);
 }
 
@@ -78,6 +78,10 @@ async function getCachedMusicFilenames(folderName) {
     }
 }
 
+async function getCachedFolderNames() {
+    return (await getCachedMusicFilenames()).map(e => e.title);
+}
+
 function URLToFilePath(url) {
     return path.format({
         dir: path.join('./Music', path.normalize(url).split('/').slice(-2, -1).join(path.sep)),
@@ -104,5 +108,6 @@ module.exports = {
     getCachedMusicFilenames,
     URLToFilePath,
     filePathToFolderTreeURL,
-    isPathSame
+    isPathSame,
+    getCachedFolderNames
 }

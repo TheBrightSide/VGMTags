@@ -66,26 +66,25 @@ class IPDatabase extends JSONDatabase {
         this.modifyDB(itemIdx, data);
     }
 
-    addTaggedSongForIP(ipAddr, taggedSongPath, tags) {
-        tags = tags.map(e => e.toLowerCase());
+    addTaggedSongForIP(ipAddr, taggedSongPath, tag) {
+        tag = tag.toLowerCase();
         taggedSongPath = path.normalize(taggedSongPath);
         if (!this.searchByIP(ipAddr)) {
-            console.log('why');
             this.appendDB({
                 ip: ipAddr,
-                taggedSongs: [ { path: taggedSongPath, tags: [ ...tags ] } ]
+                taggedSongs: [ { path: taggedSongPath, tags: [ tag ] } ]
             });
         } else {
             let data = this.searchByIP(ipAddr);
             if (data.taggedSongs.findIndex(e => e.path === taggedSongPath) !== -1) {
                 data.taggedSongs[
                     data.taggedSongs.findIndex(e => e.path === taggedSongPath)
-                ].tags.push(...tags)
+                ].tags.push(tag)
                 this.modifyByIP(ipAddr, data);
             } else {
                 data.taggedSongs.push({
                     path: taggedSongPath,
-                    tags: [ ...tags ]
+                    tags: [ tag ]
                 });
                 this.modifyByIP(ipAddr, data);
             }
@@ -120,25 +119,23 @@ class TagDatabase extends JSONDatabase {
         this.modifyDB(itemIdx, data);
     }
 
-    addTagToSong(filePath, tagNames) {
+    addTagToSong(filePath, tagName) {
         filePath = path.normalize(filePath);
-        tagNames = tagNames.map(e => {
-            return {
-                tagName: e.toLowerCase(),
-                votes: 0
-            } 
-        });
+        tagName = {
+            tagName: tagName.toLowerCase(),
+            votes: 0
+        }
         if (!this.searchByPath(filePath)) {
             this.appendDB({
                 path: filePath,
-                tags: [ ...tagNames ]
+                tags: [ tagName ]
             });
         } else {
-            if (tagNames.findIndex(e => this.tagExists(filePath, e.tagName)) !== -1) {
+            if (this.tagExists(filePath, tagName.tagName)) {
                 throw new Error('tag already exists');
             } else {
                 let data = this.searchByPath(filePath);
-                data.tags.push( ...tagNames );
+                data.tags.push( tagName );
                 this.modifyByPath(filePath, data);
             }
         }

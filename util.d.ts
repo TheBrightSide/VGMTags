@@ -14,6 +14,7 @@ export async function readTags(fileName: string): Promise<TagType>;
 export function getMusicFolders(): string[];
 export async function getMusicFilenames(folderName?: string): Promise<PathAlbum[]>;
 export async function getCachedMusicFilenames(folderName?: string): Promise<PathAlbum[]>;
+export async function getCachedFolderNames(): Promise<string[]>
 export function random(min: number, max: number): number;
 export function URLToFilePath(url: string): string;
 export function filePathToFolderTreeURL(filepath: string): string;

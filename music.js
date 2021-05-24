@@ -6,7 +6,7 @@ const path = require('path').posix;
 
 const {
     getCachedMusicFilenames,
-    getMusicFolders,
+    getCachedFolderNames,
     isPathSame
 } = require('./util.js');
 
@@ -22,9 +22,9 @@ const ipDB = new IPDatabase(IPS_DB_PATH);
 const tagDB = new TagDatabase(TAGS_DB_PATH);
 console.log('Loaded DBs.');
 
-app.get('/foldertree/', (req, res) => {
+app.get('/foldertree/', async (req, res) => {
     try {
-        res.send(getMusicFolders().map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
+        res.send((await getCachedFolderNames()).map(e => `${FOLDERTREE_ENDPOINT}/` + encodeURIComponent(e)));
     } catch (e) {
         res.status(500);
         res.send({
@@ -71,7 +71,6 @@ app.get('/allmusic', (req, res) => {
 });
 
 const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall", "cheery", "insane", "cover", "remix", "happy birthday to you"];
-const DEFAULT_ONLY = false;
 
 app.post('/tags/:folderName/:fileName', (req, res) => {
     const { action } = req.body;
@@ -99,25 +98,38 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
 
                 const tags = req.body.tags.map(e => e.toLowerCase());
 
-                // tag checks
+                // tag checks on behalf of the ip database
+                // these checks are basically to check if the ip user
+                // has already tagged a song with the tags array
                 if (!!ipDB.searchByIP(ip)) {
+                    // filtered custom input tags
                     let customTags = tags.filter(e => !DEFAULT_TAGS.includes(e));
+                    // filtered default input tags
                     let defaultTags = tags.filter(e => DEFAULT_TAGS.includes(e));
-                    if (ipDB.searchByIP(ip).taggedSongs.findIndex(e => isPathSame(e.path, songPath)) != -1) {
-                        let currIPTaggedSong = ipDB.searchByIP(ip).taggedSongs.filter(e => isPathSame(e.path, songPath))[0];
-                        if (!DEFAULT_ONLY && customTags.length > 0) {
+                    // get taggedSongs for the ip requester
+                    let currIPTaggedSongs = ipDB.searchByIP(ip).taggedSongs;
+                    
+                    if (!(currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path)) === -1)) {
+                        // it means that the selected song has already
+                        // been tagged with something in the ip database
+                        
+                        // getting the selected song's tags
+                        let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
+                        
+                        if (customTags.length > 0 && currIPSongTags.filter(e => !DEFAULT_TAGS.includes(e)).length > 0) {
                             res.status(403);
                             res.send({
-                                error: "song already tagged with a custom tag"
+                                error: "song has already been tagged with a custom tag"
                             });
                             return;
                         }
 
-                        for (var tag of defaultTags) {
-                            if (currIPTaggedSong.tags.includes(tag)) {
+                        // sorry i aint explaining this im having a mental breakdown rn
+                        for (let tag of currIPSongTags) {
+                            if (DEFAULT_TAGS.includes(tag) && defaultTags.includes(tag)) {
                                 res.status(403);
                                 res.send({
-                                    error: "song already tagged with tag " + tag + " from this user"
+                                    error: "song has already been tagged with " + tag
                                 });
                                 return;
                             }
@@ -125,32 +137,22 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                     }
                 }
 
-                if (!DEFAULT_ONLY) {
-                    if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
-                        res.status(403);
-                        res.send({
-                            error: "too many custom tags"
-                        });
-                        return;
-                    }
-                } else {
-                    if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 0) {
-                        res.status(403);
-                        res.send({
-                            error: "too many custom tags"
-                        });
-                        return;
-                    }
+                if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
+                    res.status(403);
+                    res.send({
+                        error: "too many custom tags"
+                    });
+                    return;
                 }
 
-                try {
-                    tagDB.addTagToSong(songPath, tags);
-                    ipDB.addTaggedSongForIP(ip, songPath, tags);
-                    tags.forEach(e => tagDB.incrementTagOnSong(songPath, e));
-                } catch (e) {
-                    console.log(e);
-                    tags.forEach(e => tagDB.incrementTagOnSong(songPath, e));
-                }
+                tags.forEach(e => {
+                    if (!tagDB.tagExists(songPath, e)) {
+                        tagDB.addTagToSong(songPath, e);
+                        ipDB.addTaggedSongForIP(ip, songPath, e);
+                    }
+
+                    tagDB.incrementTagOnSong(songPath, e);
+                });
 
                 res.send({
                     success: true,
