@@ -4,6 +4,10 @@ Data Updater
 Data Updater/**
 Music
 Music/**
+Music-Fake
+Music-Fake/**
+Music-Real
+Music-Real/**
 node_modules
 node_modules/**
 package-lock.json
