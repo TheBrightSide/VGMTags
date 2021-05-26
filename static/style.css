@@ -34,6 +34,55 @@ body {
 	background-image: url("https://images.pexels.com/photos/262034/pexels-photo-262034.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260");
 	background-size: cover;
 	border-radius: 15%;
+	z-index: 2;
+}
+
+.top-tags {
+	position: absolute;
+	color: white;
+	margin-left: 425px;
+	margin-bottom: 68px;
+	box-sizing: border-box;
+	height: 225px;
+	width: 225px;
+	z-index: 1;
+	/* background-color: rgba(0, 0, 0, .6); */
+	box-sizing: border-box;
+	overflow-x: hidden /* Disable horizontal scroll */
+}
+
+.top-tags a {
+	padding: 8px 8px 0px 8px;
+	text-decoration: none;
+	font-size: 18px;
+	color: #818181;
+	display: block;
+	transition: 0.3s;
+	cursor: pointer;
+	width:fit-content;
+  }
+
+.top-tags .searchbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	font-size: 36px;
+	outline: none;
+	border: none;
+	width: 100%;
+	color: white;
+  }
+
+/* The navigation menu links */
+.song-tag {
+	border-radius: 10px;
+	display: table;
+	background-color: #2b2b2b;
+	color: #818181;
+	padding-top: 1%; padding-bottom: 1%;
+	padding-left: 15%; padding-right: 2%;
+	margin: 8px 8px 0px 8px;
+	align-items: center;
 }
 
 .now-playing {

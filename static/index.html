@@ -23,6 +23,23 @@
     <div class="details">
       <div class="now-playing">PLAYING x OF y</div>
       <div class="track-art"></div>
+      <div class="top-tags">
+        <style>
+          ::-webkit-scrollbar{
+            width: 10px;
+          }
+          ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, .6);; 
+          }
+          ::-webkit-scrollbar-thumb {
+            background: #555; 
+          }
+          ::-webkit-scrollbar-thumb:hover {
+            background: rgb(136, 136, 136); 
+          }
+          </style>
+        <div id="top-song-tags"></div>
+      </div>
       <div class="track-name">Track Name</div>
       <div class="track-artist">Track Artist</div>
     </div>
@@ -45,7 +62,8 @@
     </div>
   </div>
 
-  <!-- Tag Menu [NOT WORKING YET] -->
+  
+
   <div id="tagAdderList" class="sidenav">
     <style>
     ::-webkit-scrollbar{
