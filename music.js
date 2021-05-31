@@ -108,6 +108,7 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                     let defaultTags = tags.filter(e => DEFAULT_TAGS.includes(e));
                     // get taggedSongs for the ip requester
                     let currIPTaggedSongs = ipDB.searchByIP(ip).taggedSongs;
+                    console.log("curriptaggedsongs" + currIPTaggedSongs)
                     
                     if (!(currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path)) === -1)) {
                         // it means that the selected song has already
@@ -115,7 +116,8 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                         
                         // getting the selected song's tags
                         let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
-                        
+                        console.log("curripsongtags: " + currIPSongTags)
+
                         if (customTags.length > 0 && currIPSongTags.filter(e => !DEFAULT_TAGS.includes(e)).length > 0) {
                             res.status(403);
                             res.send({
@@ -171,6 +173,12 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
             case 'availabletags': {
                 res.send(DEFAULT_TAGS);
                 break;
+            }
+            case 'get': {
+                let currIPTaggedSongs = ipDB.searchByIP(ip).taggedSongs;
+                let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
+                console.log(currIPSongTags);
+                res.send(currIPSongTags);
             }
             default: {
                 res.status(400);
