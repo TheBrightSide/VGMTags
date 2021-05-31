@@ -2,27 +2,24 @@ let now_playing = document.querySelector(".now-playing");
 let track_art = document.querySelector(".track-art");
 let track_name = document.querySelector(".track-name");
 let track_artist = document.querySelector(".track-artist");
-
 let playpause_btn = document.querySelector(".playpause-track");
 let next_btn = document.querySelector(".next-track");
 let prev_btn = document.querySelector(".prev-track");
-
 let seek_slider = document.querySelector(".seek_slider");
 let volume_slider = document.querySelector(".volume_slider");
 let curr_time = document.querySelector(".current-time");
 let total_duration = document.querySelector(".total-duration");
-
 let heart_button = document.querySelector(".add-playlist");
 
-let track_index = 0;
-let isPlaying = false;
-let isTaggerOpen = false;
-let updateTimer;
-let track_list = []; //Songs in queue
-let cache = []; //The unchanging cache
-let full_albums = []; //The changing cache
+let track_index = 0; // Current index in the queue. Allows user to go to previous song.
+let isPlaying = false; // True if the player is playing
+let isTaggerOpen = false; // True if the tagger menu is open
+let updateTimer; // Updates the seek slider
+let track_list = []; // Songs in queue
+let cache = []; // The unchanging cache
+let full_albums = []; // The changing cache
 
-let restricted_tag_list = ["Relaxing", "Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"];
+let restricted_tag_list = ["Relaxing", "Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"]; // default tag list
 
 let current_tags = [];
 let current_user_tags = [];
@@ -35,181 +32,22 @@ let used_custom_tag = false;
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
 
+displayTopTag("Hell"), displayTopTag("Relaxing"), displayTopTag("Zen"), displayTopTag("Insane"), displayTopTag("Ugh");
 
-//DELETE
-tagname = "Hell"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
+function displayTopTag(tagname){
+  var tag = document.createElement("song-tag");
+  tag.className = "song-tag";
+  tag.innerHTML = tagname;
+  tag.style.backgroundColor = stringToColour(tagname);
+  tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+  if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+    tag.style.color = "#000000"
+  }
+  else {
+    tag.style.color = "#ffffff"
+  }
+  top_song_tags.appendChild(tag);
 }
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Zen"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-tagname = "Relaxing"
-var tag = document.createElement("song-tag");
-tag.className = "song-tag";
-tag.innerHTML = tagname;
-tag.style.backgroundColor = stringToColour(tagname);
-tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-  tag.style.color = "#000000"
-}
-else {
-  tag.style.color = "#ffffff"
-}
-top_song_tags.appendChild(tag);
-
-//DELETE
 
 class Album {
   constructor(title, songs, path) {
@@ -221,7 +59,7 @@ class Album {
 }
 
 class Song {
-  constructor(path, album, title, thumbnail) {
+  constructor(path, album, title) {
     this.title = title;
     this.album = album;
     this.image = path.substring(0, path.lastIndexOf("/") + 1) + "thumbnail.png";
@@ -479,9 +317,9 @@ function importUserTags() {
   //import user tags from music.js
   if (current_user_tags.length == 0) { //This should be == 0
     current_user_tags.forEach(user_tag => {
-      if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase()) && !used_custom_tag) {
-        addCustomTag(tag);
-      } else addUserTag(tag);
+      if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(user_tag.textContent.toLowerCase()) && !used_custom_tag) {
+        addCustomTag(user_tag);
+      } else addUserTag(user_tag);
     })
   }
 }
@@ -626,7 +464,7 @@ function stringToColour(str) {
       });
   }
 
-  await fetch('/music/tags/Nintendo 3DS/Notifications.mp3', {
+  await fetch('/music/tags/Super Mario Galaxy/Egg Planet.mp3', {
     method: 'POST',
     body: JSON.stringify({ 'action': 'availabletags' }),
     headers: {
@@ -641,6 +479,7 @@ function stringToColour(str) {
       }));
     });
 
+  console.log("Default tags: ")
   console.log(restricted_tag_list)
 
 
