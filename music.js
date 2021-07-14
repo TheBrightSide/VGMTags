@@ -97,6 +97,8 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                 }
 
                 const tags = req.body.tags.map(e => e.toLowerCase());
+                let acceptedTags = [];
+                let rejectedTags = [];
 
                 // tag checks on behalf of the ip database
                 // these checks are basically to check if the ip user
@@ -108,7 +110,6 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                     let defaultTags = tags.filter(e => DEFAULT_TAGS.includes(e));
                     // get taggedSongs for the ip requester
                     let currIPTaggedSongs = ipDB.searchByIP(ip).taggedSongs;
-                    console.log("curriptaggedsongs" + currIPTaggedSongs)
                     
                     if (!(currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path)) === -1)) {
                         // it means that the selected song has already
@@ -116,38 +117,51 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                         
                         // getting the selected song's tags
                         let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
-                        console.log("curripsongtags: " + currIPSongTags)
-
+                        
                         if (customTags.length > 0 && currIPSongTags.filter(e => !DEFAULT_TAGS.includes(e)).length > 0) {
-                            res.status(403);
-                            res.send({
-                                error: "song has already been tagged with a custom tag"
-                            });
-                            return;
+                            // res.status(403);
+                            // res.send({
+                            //     error: "song has already been tagged with a custom tag"
+                            // });
+                            rejectedTags.push(...tags.filter(e => !DEFAULT_TAGS.includes(e)));
+                            // return;
                         }
 
                         // sorry i aint explaining this im having a mental breakdown rn
                         for (let tag of currIPSongTags) {
                             if (DEFAULT_TAGS.includes(tag) && defaultTags.includes(tag)) {
-                                res.status(403);
-                                res.send({
-                                    error: "song has already been tagged with " + tag
-                                });
-                                return;
+                                // res.status(403);
+                                // res.send({
+                                //     error: "song has already been tagged with " + tag
+                                // });
+                                rejectedTags.push(tag);
+                                // return;
                             }
                         }
                     }
                 }
 
-                if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
-                    res.status(403);
-                    res.send({
-                        error: "too many custom tags"
-                    });
-                    return;
-                }
+                // if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
+                //     let customTagCounter = 0;
+                //     // res.status(403);
+                //     // res.send({
+                //     //     error: "too many custom tags"
+                //     // });
+                //     for (let tag of tags) {
+                //         if (!DEFAULT_TAGS.includes(tag)) {
+                            
+                //         }
+                //     }
+                //     // return;
+                // }
 
-                tags.forEach(e => {
+                // rejectedTags.push(...(
+                //     [...new Set(tags.filter(tag => !DEFAULT_TAGS.includes(tag)))]
+                // ));
+                rejectedTags = [...new Set(rejectedTags)];
+                acceptedTags = [...new Set(tags.filter(e => !rejectedTags.includes(e)))];
+
+                acceptedTags.forEach(e => {
                     if (!tagDB.tagExists(songPath, e)) {
                         tagDB.addTagToSong(songPath, e);
                         ipDB.addTaggedSongForIP(ip, songPath, e);
@@ -157,8 +171,8 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                 });
 
                 res.send({
-                    success: true,
-                    votedFor: tags
+                    accepted: acceptedTags,
+                    rejected: rejectedTags
                 });
                 break;
             }
@@ -173,12 +187,6 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
             case 'availabletags': {
                 res.send(DEFAULT_TAGS);
                 break;
-            }
-            case 'get': {
-                let currIPTaggedSongs = ipDB.searchByIP(ip).taggedSongs;
-                let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
-                console.log(currIPSongTags);
-                res.send(currIPSongTags);
             }
             default: {
                 res.status(400);
