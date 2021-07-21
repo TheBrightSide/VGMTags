@@ -70,7 +70,11 @@ app.get('/allmusic', (req, res) => {
         });
 });
 
-const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall", "cheery", "insane", "cover", "remix", "happy birthday to you"];
+const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall", "cheery", "insane", "cover", "remix"];
+
+app.get('/defaulttags', (req, res) => {
+    res.send(DEFAULT_TAGS);
+})
 
 app.post('/tags/:folderName/:fileName', (req, res) => {
     const { action } = req.body;
@@ -182,10 +186,6 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
             }
             case 'create': {
                 res.send('yes ok you create tag');
-                break;
-            }
-            case 'availabletags': {
-                res.send(DEFAULT_TAGS);
                 break;
             }
             default: {

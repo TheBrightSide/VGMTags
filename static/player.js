@@ -464,9 +464,8 @@ function stringToColour(str) {
       });
   }
 
-  await fetch('/music/tags/Super Mario Galaxy/Egg Planet.mp3', {
-    method: 'POST',
-    body: JSON.stringify({ 'action': 'availabletags' }),
+  await fetch('/music/defaulttags', {
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
