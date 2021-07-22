@@ -32,8 +32,6 @@ let used_custom_tag = false;
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
 
-displayTopTag("Hell"), displayTopTag("Relaxing"), displayTopTag("Zen"), displayTopTag("Insane"), displayTopTag("Ugh");
-
 function displayTopTag(tagname){
   var tag = document.createElement("song-tag");
   tag.className = "song-tag";
@@ -147,6 +145,7 @@ async function nextTrack() {
   loadTrack(track_index);
   playTrack();
   resetTagSelector();
+  importTopTags();
   if (isTaggerOpen) {
     importTagList();
     importUserTags();
@@ -163,6 +162,7 @@ async function prevTrack() {
   loadTrack(track_index);
   playTrack();
   resetTagSelector();
+  importTopTags();
   if (isTaggerOpen) {
     importTagList();
     importUserTags();
@@ -294,10 +294,31 @@ function resetTagSelector() {
     tag.remove();
   })
   current_tags = [];
+  console.log(current_user_tags)
   current_user_tags.forEach(tag => {
     tag.remove();
   })
   current_user_tags = [];
+  used_custom_tag = false;
+}
+
+async function importTopTags(){
+  Array.from(top_song_tags.children).forEach(tag => {
+    tag.remove()
+  })
+  var received_tags;
+  await fetch('/music/tags/' + track_list[track_index].path.split("foldertree/")[1], {
+    method: 'GET',
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+      data.forEach(tag => {
+        displayTopTag(tag.tagName.replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }));
+      })
+    })
 }
 
 function importTagList() {
@@ -313,23 +334,69 @@ function importTagList() {
   }
 }
 
-function importUserTags() {
+async function importUserTags() {
   //import user tags from music.js
   if (current_user_tags.length == 0) { //This should be == 0
-    current_user_tags.forEach(user_tag => {
-      if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(user_tag.textContent.toLowerCase()) && !used_custom_tag) {
-        addCustomTag(user_tag);
-      } else addUserTag(user_tag);
+    var received_tags;
+
+    await fetch('/music/usertags/' + track_list[track_index].path.split("foldertree/")[1], {
+      method: 'GET',
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+        received_tags =  data.map(entry => entry.replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }));
+      })
+
+    received_tags.forEach(user_tag => {
+      if (!restricted_tag_list.map(tag => tag.toLowerCase()).includes(user_tag.toLowerCase()) && !used_custom_tag) {
+
+        // Same as in addCustomTag
+        var tag = document.createElement("tag");
+        tag.className = "tag";
+        tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag;
+        tag.style.backgroundColor = stringToColour(user_tag);
+        tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+        if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+          tag.style.color = "#000000"
+        }
+        else {
+          tag.style.color = "#ffffff"
+        }
+        current_user_tags.push(tag);
+        cur_tags_html.appendChild(tag);
+        used_custom_tag = true;
+      } 
+      else {
+        console.log(user_tag)
+
+        // Same as in addUserTag
+        var tag = document.createElement("tag");
+        tag.className = "tag";
+        tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag;
+        tag.style.backgroundColor = stringToColour(user_tag);
+        tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+        if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+          tag.style.color = "#000000"
+        }
+        else {
+          tag.style.color = "#ffffff"
+        }
+        current_user_tags.push(tag);
+        cur_tags_html.appendChild(tag);
+      }
     })
   }
 }
 
-function addCustomTag(user_tag) {
+async function addCustomTag(user_tag) {
   console.log("custom tag")
   var tag = document.createElement("tag");
   tag.className = "tag";
   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '');
-  tag.style.backgroundColor = stringToColour(user_tag.textContent);
+  tag.style.backgroundColor = stringToColour(tag.textContent);
   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
     tag.style.color = "#000000"
@@ -340,6 +407,20 @@ function addCustomTag(user_tag) {
   current_user_tags.push(tag);
   cur_tags_html.appendChild(tag);
   used_custom_tag = true;
+  await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
+    method: 'POST',
+    body: JSON.stringify({
+      "action": "vote",
+      "tags": [tag.textContent.toLowerCase()]
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
 }
 
 async function addUserTag(user_tag) {
@@ -405,6 +486,7 @@ function printHi() {
 }
 
 function stringToColour(str) {
+  console.log(str, "is being converted to a color!")
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);

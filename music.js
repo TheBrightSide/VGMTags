@@ -76,7 +76,7 @@ app.get('/defaulttags', (req, res) => {
     res.send(DEFAULT_TAGS);
 })
 
-app.get('/tags/:folderName/:fileName', (req, res) => {
+app.get('/usertags/:folderName/:fileName', (req, res) => {
     const { folderName, fileName } = req.params;
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const songPath = path.join('Music', folderName, fileName);
@@ -87,6 +87,23 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
             res.send(ipDB.searchByIP(ip).taggedSongs[i].tags)
         }
     });
+    if (!res.headersSent){
+        res.send(JSON.stringify(new Array()));
+    }
+})
+
+app.get('/tags/:folderName/:fileName', (req, res) => {
+    const { folderName, fileName } = req.params;
+    const songPath = path.join('Music', folderName, fileName);
+
+    //how do you do this more effectively?
+    if(tagDB.searchByPath(songPath) != undefined){
+        console.log(tagDB.searchByPath(songPath).tags)
+        res.send(tagDB.searchByPath(songPath).tags)
+    }
+    if (!res.headersSent){
+        res.send(JSON.stringify(new Array()));
+    }
 })
 
 app.post('/tags/:folderName/:fileName', (req, res) => {
