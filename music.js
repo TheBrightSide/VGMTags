@@ -76,6 +76,19 @@ app.get('/defaulttags', (req, res) => {
     res.send(DEFAULT_TAGS);
 })
 
+app.get('/tags/:folderName/:fileName', (req, res) => {
+    const { folderName, fileName } = req.params;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const songPath = path.join('Music', folderName, fileName);
+
+    //how do you do this more effectively?
+    ipDB.searchByIP(ip).taggedSongs.forEach((song, i) => {
+        if (song.path == songPath){
+            res.send(ipDB.searchByIP(ip).taggedSongs[i].tags)
+        }
+    });
+})
+
 app.post('/tags/:folderName/:fileName', (req, res) => {
     const { action } = req.body;
     const { folderName, fileName } = req.params;
