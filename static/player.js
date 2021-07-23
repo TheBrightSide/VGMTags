@@ -1,4 +1,4 @@
-let now_playing = document.querySelector(".now-playing");
+let tag_count = document.querySelector(".tag-count");
 let track_art = document.querySelector(".track-art");
 let track_name = document.querySelector(".track-name");
 let track_artist = document.querySelector(".track-artist");
@@ -76,6 +76,12 @@ function loadTrack(track_index) {
   clearInterval(updateTimer);
   resetValues();
   importTopTags();
+  resetTagSelector();
+  if (isTaggerOpen) {
+    importTagList();
+    importUserTags();
+    searchFilter();
+  }
 
   // Load a new track
   curr_track.src = track_list[track_index].path;
@@ -85,7 +91,7 @@ function loadTrack(track_index) {
   track_art.style.backgroundImage = "url('" + track_list[track_index].image + "')";
   track_name.textContent = track_list[track_index].title;
   track_artist.textContent = track_list[track_index].album;
-  now_playing.textContent = "PLAYING " + (track_index + 1) + " OF " + track_list.length;
+  tag_count.textContent = "This song has been tagged " + top_song_tags.childElementCount + " times"
 
   // Set an interval of 1000 milliseconds for updating the seek slider
   updateTimer = setInterval(seekUpdate, 1000);
@@ -145,12 +151,6 @@ async function nextTrack() {
   };
   loadTrack(track_index);
   playTrack();
-  resetTagSelector();
-  if (isTaggerOpen) {
-    importTagList();
-    importUserTags();
-    searchFilter();
-  }
 }
 
 async function prevTrack() {
@@ -161,12 +161,6 @@ async function prevTrack() {
   })();
   loadTrack(track_index);
   playTrack();
-  resetTagSelector();
-  if (isTaggerOpen) {
-    importTagList();
-    importUserTags();
-    searchFilter();
-  }
 }
 
 function seekTo() {
@@ -423,7 +417,7 @@ async function addCustomTag(user_tag) {
   console.log("custom tag")
   var tag = document.createElement("tag");
   tag.className = "tag";
-  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '');
+  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
   tag.style.backgroundColor = stringToColour(tag.textContent);
   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
@@ -449,6 +443,7 @@ async function addCustomTag(user_tag) {
     .then(data => {
       console.log(data)
     })
+  importTopTags();
 }
 
 async function addUserTag(user_tag) {
@@ -483,6 +478,7 @@ async function addUserTag(user_tag) {
     .then(data => {
       console.log(data)
     })
+  importTopTags();
 }
 
 function tagSong() {

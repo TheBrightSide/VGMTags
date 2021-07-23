@@ -48,7 +48,12 @@ body {
 	z-index: 1;
 	/* background-color: rgba(0, 0, 0, .6); */
 	box-sizing: border-box;
-	overflow-x: hidden /* Disable horizontal scroll */
+	overflow-x: hidden; /* Disable scroll */
+	visibility: hidden;
+}
+
+.top-tags:hover{
+	visibility: visible;
 }
 
 .top-tags a {
@@ -72,6 +77,10 @@ body {
 	width: 100%;
 	color: white;
   }
+
+.top-song-tags {
+    visibility: visible;
+}
 
 /* The navigation menu links */
 .song-tag {
