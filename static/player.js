@@ -75,6 +75,7 @@ function getCookie(name) {
 function loadTrack(track_index) {
   clearInterval(updateTimer);
   resetValues();
+  importTopTags();
 
   // Load a new track
   curr_track.src = track_list[track_index].path;
@@ -145,7 +146,6 @@ async function nextTrack() {
   loadTrack(track_index);
   playTrack();
   resetTagSelector();
-  importTopTags();
   if (isTaggerOpen) {
     importTagList();
     importUserTags();
@@ -162,7 +162,6 @@ async function prevTrack() {
   loadTrack(track_index);
   playTrack();
   resetTagSelector();
-  importTopTags();
   if (isTaggerOpen) {
     importTagList();
     importUserTags();
@@ -281,12 +280,32 @@ function selectTag(tag) {
   console.log(current_user_tags)
 }
 
-function removeTag(tag) {
+async function removeTag(tag) {
   if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.parentElement.parentElement.textContent.toLowerCase())) used_custom_tag = false;
   current_user_tags.splice(current_user_tags.indexOf(tag.parentElement.parentElement), 1)
+  
+  console.log(tag.parentElement.parentElement.textContent)
+
+  await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
+    method: 'POST',
+    body: JSON.stringify({
+      "action": "removevote",
+      "tags": [tag.parentElement.parentElement.textContent.toLowerCase()]
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+  
   tag.parentElement.parentElement.remove();
   tag.parentElement.remove();
   tag.remove();
+
+  importTopTags();
 }
 
 function resetTagSelector() {
@@ -306,15 +325,25 @@ async function importTopTags(){
   Array.from(top_song_tags.children).forEach(tag => {
     tag.remove()
   })
-  var received_tags;
   await fetch('/music/tags/' + track_list[track_index].path.split("foldertree/")[1], {
     method: 'GET',
   })
     .then(response => response.json())
     .then(data => {
       console.log(data)
-      data.forEach(tag => {
-        displayTopTag(tag.tagName.replace(/\w\S*/g, function (txt) {
+
+      var items = [];
+      for (const [tag, votes] of Object.entries(data)) {
+        if (votes!=0) items.push([tag,votes])
+      }
+      
+      // Sort the array based on the second element
+      items.sort(function(first, second) {
+        return second[1] - first[1];
+      });
+      
+      items.forEach(tag => {
+        displayTopTag(tag[0].replace(/\w\S*/g, function (txt) {
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }));
       })
@@ -344,7 +373,6 @@ async function importUserTags() {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data)
         received_tags =  data.map(entry => entry.replace(/\w\S*/g, function (txt) {
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }));
@@ -486,7 +514,6 @@ function printHi() {
 }
 
 function stringToColour(str) {
-  console.log(str, "is being converted to a color!")
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
