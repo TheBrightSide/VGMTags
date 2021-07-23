@@ -32,12 +32,13 @@ declare class IPDatabase extends JSONDatabase<IPDatabaseModel> {
     searchByIP(ipAddr: string): IPDatabaseModel;
     modifyByIP(ipAddr: string, data: IPDatabaseModel): void;
     addTaggedSongForIP(ipAddr: string, taggedSongPath: string, tag: string): void;
+    removeTaggedSongForIP(ipAddr: string, taggedSongPath: string, tag: string): void;
 }
 
 declare class TagDatabase extends JSONDatabase<TagDatabaseModel> {
     constructor(dbPath: string): void;
     searchByPath(filePath: string): TagDatabaseModel;
-    tagExists(filePath: string, tagName: string): void;
+    tagExists(filePath: string, tagName: string): boolean;
     modifyByPath(filePath: string, data: TagDatabaseModel): void;
     addTagToSong(filePath: string, tagName: string): void;
     incrementTagOnSong(filePath: string, tagName: string): void;

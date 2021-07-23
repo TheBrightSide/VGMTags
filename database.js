@@ -90,6 +90,33 @@ class IPDatabase extends JSONDatabase {
             }
         }
     }
+
+    removeTaggedSongForIP(ipAddr, taggedSongPath, tag) {
+        tag = tag.toLowerCase();
+        taggedSongPath = path.normalize(taggedSongPath);
+
+        if (!this.searchByIP(ipAddr)) {
+            throw new Error('ip hasnt tagged any songs')
+        } else {
+            let ipData = this.searchByIP(ipAddr);
+
+            if (ipData.taggedSongs.findIndex(e => e.path === taggedSongPath) !== -1) {
+                let songIndex = ipData.taggedSongs.findIndex(e => e.path === taggedSongPath);
+                
+                if (ipData.taggedSongs[songIndex].tags.findIndex(e => e === tag) !== -1) {
+                    ipData.taggedSongs[songIndex].tags = ipData.taggedSongs[songIndex].tags.filter(
+                        e => e !== tag
+                    );
+                } else {
+                    throw new Error('tag doesnt exist in song in ip');
+                }
+
+                this.modifyByIP(ipAddr, ipData);
+            } else {
+                throw new Error('song doesnt exist in ip');
+            }
+        }
+    }
 }
 
 class TagDatabase extends JSONDatabase {

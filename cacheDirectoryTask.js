@@ -31,7 +31,7 @@ class CacheTaskEventEmitter extends EventEmitter {
 
     stopCacheTimer() {
         clearInterval(this.refreshCacheIntervalID);
-        this.refreshCacheIntervalID = 0;
+        this.refreshCacheIntervalID = -1;
     }
 }
 

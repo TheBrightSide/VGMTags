@@ -99,7 +99,13 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
     //how do you do this more effectively?
     if(tagDB.searchByPath(songPath) != undefined){
         console.log(tagDB.searchByPath(songPath).tags)
-        res.send(tagDB.searchByPath(songPath).tags)
+        result = {};
+
+        for (tag of tagDB.searchByPath(songPath).tags) {
+            result[tag.tagName] = tag.votes;
+        }
+
+        res.send(result);
     }
     if (!res.headersSent){
         res.send(JSON.stringify(new Array()));
@@ -153,54 +159,27 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                         let currIPSongTags = currIPTaggedSongs[currIPTaggedSongs.findIndex(e => isPathSame(songPath, e.path))].tags;
                         
                         if (customTags.length > 0 && currIPSongTags.filter(e => !DEFAULT_TAGS.includes(e)).length > 0) {
-                            // res.status(403);
-                            // res.send({
-                            //     error: "song has already been tagged with a custom tag"
-                            // });
                             rejectedTags.push(...tags.filter(e => !DEFAULT_TAGS.includes(e)));
-                            // return;
                         }
 
                         // sorry i aint explaining this im having a mental breakdown rn
                         for (let tag of currIPSongTags) {
                             if (DEFAULT_TAGS.includes(tag) && defaultTags.includes(tag)) {
-                                // res.status(403);
-                                // res.send({
-                                //     error: "song has already been tagged with " + tag
-                                // });
                                 rejectedTags.push(tag);
-                                // return;
                             }
                         }
                     }
                 }
 
-                // if (tags.filter(tag => !DEFAULT_TAGS.includes(tag)).length > 1) {
-                //     let customTagCounter = 0;
-                //     // res.status(403);
-                //     // res.send({
-                //     //     error: "too many custom tags"
-                //     // });
-                //     for (let tag of tags) {
-                //         if (!DEFAULT_TAGS.includes(tag)) {
-                            
-                //         }
-                //     }
-                //     // return;
-                // }
-
-                // rejectedTags.push(...(
-                //     [...new Set(tags.filter(tag => !DEFAULT_TAGS.includes(tag)))]
-                // ));
                 rejectedTags = [...new Set(rejectedTags)];
                 acceptedTags = [...new Set(tags.filter(e => !rejectedTags.includes(e)))];
 
                 acceptedTags.forEach(e => {
                     if (!tagDB.tagExists(songPath, e)) {
                         tagDB.addTagToSong(songPath, e);
-                        ipDB.addTaggedSongForIP(ip, songPath, e);
                     }
 
+                    ipDB.addTaggedSongForIP(ip, songPath, e);
                     tagDB.incrementTagOnSong(songPath, e);
                 });
 
@@ -208,14 +187,37 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                     accepted: acceptedTags,
                     rejected: rejectedTags
                 });
-                break;
-            }
-            case 'cleartag': {
                 
                 break;
             }
-            case 'create': {
-                res.send('yes ok you create tag');
+            case 'removevote': {
+                if (!req.body.tags || req.body.tags.length == 0 || !Array.isArray(req.body.tags)) {
+                    res.status(400);
+                    res.send({
+                        error: "insufficient or invalid body parameters"
+                    });
+                    return;
+                }
+
+                const tags = req.body.tags.map(e => e.toLowerCase());
+                let acceptedTags = []
+                let rejectedTags = []
+
+                tags.forEach(tag => {
+                    try {
+                        ipDB.removeTaggedSongForIP(ip, songPath, tag);
+                        tagDB.decrementTagOnSong(songPath, tag);
+                        acceptedTags.push(tag);
+                    } catch (e) {
+                        rejectedTags.push(tag);
+                    }
+                });
+
+                res.send({
+                    accepted: acceptedTags,
+                    rejected: rejectedTags
+                });
+
                 break;
             }
             default: {
