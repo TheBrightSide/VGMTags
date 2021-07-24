@@ -2,7 +2,6 @@ const fs = require('fs');
 const express = require('express');
 const jsmediatags = require('jsmediatags');
 const musicModule = require('./music.js');
-const bodyParser = require('body-parser');
 
 const dirCacheScheduler = new (require('./cacheDirectoryTask.js'))('./Music', 3600000);
 dirCacheScheduler.startCacheTimer();
@@ -17,8 +16,9 @@ fs.readdir('Music', (err, files) => {
     }
   });
 });
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 app.post('/newSong', function (request, response) {
   const song = request.body.song;
