@@ -40,8 +40,8 @@ curr_track.setAttribute('crossOrigin', 'anonymous')
 document.body.addEventListener('mousedown', function (event) {
 
   // Detects clicks outside of sidenav
-  if (!sidenav.contains(event.target) && !tag_track.contains(event.target)) {
-      closeNav();
+  if (!sidenav.contains(event.target) && event.target.tagName == "DIV") {
+    closeNav();
   }
   //
 
@@ -95,7 +95,7 @@ function loadTrack(track_index) {
   if (isTaggerOpen) {
     importTagList();
     importUserTags();
-    searchFilter();
+    if(document.getElementById('tagSearchFilter').value.length != 0) searchFilter();
   }
 
   // Load a new track
@@ -471,71 +471,6 @@ async function importUserTags() {
     })
   }
 }
-
-// async function addCustomTag(user_tag) {
-//   var tag = document.createElement("tag");
-//   tag.className = "tag";
-//   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
-//   tag.style.backgroundColor = stringToColour(tag.textContent);
-//   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-//   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-//     tag.style.color = "#000000"
-//   }
-//   else {
-//     tag.style.color = "#ffffff"
-//   }
-//   current_user_tags.push(tag);
-//   cur_tags_html.appendChild(tag);
-//   used_custom_tag = true;
-//   await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       "action": "vote",
-//       "tags": [tag.textContent.toLowerCase()]
-//     }),
-//     headers: {
-//       'Content-Type': 'application/json'
-//     }
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       console.log(data)
-//     })
-//   importTopTags();
-// }
-
-// async function addUserTag(user_tag) {
-//   var tag = document.createElement("tag");
-//   tag.className = "tag";
-//   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
-//   tag.style.backgroundColor = stringToColour(user_tag.textContent);
-//   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-//   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-//     tag.style.color = "#000000"
-//   }
-//   else {
-//     tag.style.color = "#ffffff"
-//   }
-//   current_user_tags.push(tag);
-//   cur_tags_html.appendChild(tag);
-
-//   // Updates the database with the new tag. This should be changed in the future to a submit button = less requests.
-//   await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
-//     method: 'POST',
-//     body: JSON.stringify({
-//       "action": "vote",
-//       "tags": [user_tag.textContent.toLowerCase()]
-//     }),
-//     headers: {
-//       'Content-Type': 'application/json'
-//     }
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       console.log(data)
-//     })
-//   importTopTags();
-// }
 
 function tagSong() {
   importTagList();

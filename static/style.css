@@ -269,7 +269,7 @@ i.fa-step-backward {
 	color: #818181;
 	display: block;
 	transition: 0.3s;
-	cursor: pointer;
+	cursor: default;
   }
 
   /* .usertag a {
