@@ -287,9 +287,51 @@ function selectTag(tag) {
     if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.textContent.toLowerCase())) {
       if (used_custom_tag) {
         alert("You can only use one custom tag per song");
-      } else addCustomTag(tag);
-    } else addUserTag(tag);
+      } 
+      else{
+        addToTagDB(addHTMLTag(tag));
+        used_custom_tag = true;
+      } 
+    } 
+    else {
+      addToTagDB(addHTMLTag(tag));
+    }
   }
+}
+
+function addHTMLTag(user_tag){
+  var tag = document.createElement("tag");
+  tag.className = "tag";
+  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
+  tag.style.backgroundColor = stringToColour(tag.textContent);
+  tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+  if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+    tag.style.color = "#000000"
+  }
+  else {
+    tag.style.color = "#ffffff"
+  }
+  current_user_tags.push(tag);
+  cur_tags_html.appendChild(tag);
+  return tag;
+}
+
+async function addToTagDB(html_tag){
+  await fetch('/music/tags/' + curr_track.src.split("foldertree/")[1], {
+    method: 'POST',
+    body: JSON.stringify({
+      "action": "vote",
+      "tags": [html_tag.textContent.toLowerCase()]
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data)
+    })
+  importTopTags();
 }
 
 async function removeTag(tag) {
@@ -311,11 +353,9 @@ async function removeTag(tag) {
       console.log(data)
     })
   
-  tag.parentElement.parentElement.remove();
-  tag.parentElement.remove();
-  tag.remove();
+  tag.parentElement.parentElement.remove(); //removes the tag from the tag selector
 
-  importTopTags();
+  importTopTags(); //refreshes the song's toptags
 }
 
 function resetTagSelector() {
@@ -331,30 +371,37 @@ function resetTagSelector() {
 }
 
 async function importTopTags(){
+  //removes current top-tag elements
   Array.from(top_song_tags.children).forEach(tag => {
     tag.remove()
   })
+
   await fetch('/music/tags/' + track_list[track_index].path.split("foldertree/")[1], {
     method: 'GET',
   })
     .then(response => response.json())
     .then(data => {
       var items = [];
+
+      //puts the dictionary into an array (votes of 1 or greater)
       for (const [tag, votes] of Object.entries(data)) {
         if (votes!=0) items.push([tag,votes])
       }
       
-      // Sort the array based on the second element
+      //sorts the array by vote; high to low
       items.sort(function(first, second) {
         return second[1] - first[1];
       });
       
+      //for each item in the array, a top-tag html element is created to display beside the album art
       items.forEach(tag => {
         displayTopTag(tag[0].replace(/\w\S*/g, function (txt) {
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }));
       })
     })
+
+  //info above album art
   if (top_song_tags.childElementCount <= 0) tag_count.textContent = "Be the first to tag this song!"
   else if (top_song_tags.childElementCount == 1) tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tag"
   else tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tags"
@@ -368,13 +415,11 @@ function importTagList() {
       addable_tags.appendChild(tag);
       current_tags.push(tag);
     });
-    //This part imports the song's custom tags (:
-    //blahblah.getTags(song)
   }
 }
 
 async function importUserTags() {
-  //import user tags from music.js
+  //import ip tags from music.js
   if (current_user_tags.length == 0) { //This should be == 0
     var received_tags;
 
@@ -427,70 +472,70 @@ async function importUserTags() {
   }
 }
 
-async function addCustomTag(user_tag) {
-  var tag = document.createElement("tag");
-  tag.className = "tag";
-  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
-  tag.style.backgroundColor = stringToColour(tag.textContent);
-  tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-  if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-    tag.style.color = "#000000"
-  }
-  else {
-    tag.style.color = "#ffffff"
-  }
-  current_user_tags.push(tag);
-  cur_tags_html.appendChild(tag);
-  used_custom_tag = true;
-  await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
-    method: 'POST',
-    body: JSON.stringify({
-      "action": "vote",
-      "tags": [tag.textContent.toLowerCase()]
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-    })
-  importTopTags();
-}
+// async function addCustomTag(user_tag) {
+//   var tag = document.createElement("tag");
+//   tag.className = "tag";
+//   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
+//   tag.style.backgroundColor = stringToColour(tag.textContent);
+//   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+//   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+//     tag.style.color = "#000000"
+//   }
+//   else {
+//     tag.style.color = "#ffffff"
+//   }
+//   current_user_tags.push(tag);
+//   cur_tags_html.appendChild(tag);
+//   used_custom_tag = true;
+//   await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
+//     method: 'POST',
+//     body: JSON.stringify({
+//       "action": "vote",
+//       "tags": [tag.textContent.toLowerCase()]
+//     }),
+//     headers: {
+//       'Content-Type': 'application/json'
+//     }
+//   })
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log(data)
+//     })
+//   importTopTags();
+// }
 
-async function addUserTag(user_tag) {
-  var tag = document.createElement("tag");
-  tag.className = "tag";
-  tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
-  tag.style.backgroundColor = stringToColour(user_tag.textContent);
-  tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
-  if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-    tag.style.color = "#000000"
-  }
-  else {
-    tag.style.color = "#ffffff"
-  }
-  current_user_tags.push(tag);
-  cur_tags_html.appendChild(tag);
+// async function addUserTag(user_tag) {
+//   var tag = document.createElement("tag");
+//   tag.className = "tag";
+//   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
+//   tag.style.backgroundColor = stringToColour(user_tag.textContent);
+//   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+//   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
+//     tag.style.color = "#000000"
+//   }
+//   else {
+//     tag.style.color = "#ffffff"
+//   }
+//   current_user_tags.push(tag);
+//   cur_tags_html.appendChild(tag);
 
-  // Updates the database with the new tag. This should be changed in the future to a submit button = less requests.
-  await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
-    method: 'POST',
-    body: JSON.stringify({
-      "action": "vote",
-      "tags": [user_tag.textContent.toLowerCase()]
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-    })
-  importTopTags();
-}
+//   // Updates the database with the new tag. This should be changed in the future to a submit button = less requests.
+//   await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
+//     method: 'POST',
+//     body: JSON.stringify({
+//       "action": "vote",
+//       "tags": [user_tag.textContent.toLowerCase()]
+//     }),
+//     headers: {
+//       'Content-Type': 'application/json'
+//     }
+//   })
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log(data)
+//     })
+//   importTopTags();
+// }
 
 function tagSong() {
   importTagList();
