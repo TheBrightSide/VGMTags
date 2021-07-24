@@ -47,24 +47,25 @@ document.body.addEventListener('mousedown', function (event) {
 
 });
 
-function displayTopTag(tagname){
+function displayTopTag(tagname, votes){
   var tag = document.createElement("song-tag");
   tag.className = "song-tag";
   tag.innerHTML = tagname;
+  tag.setAttribute("votes", votes)
   tag.onclick = async function() {
     await tagSong()
     selectTag(this)
   }
   tag.onmouseover = function() {
-    var votes = document.createElement("votes")
-    votes.className = "tag-votes"
-    votes.id = "tagvotes"
-    votes.innerHTML = 1203
-    votes.display = "inline-table"
-    tag.parentElement.parentElement.parentElement.appendChild(votes)
+    if (tag.getAttribute("votes") == 1) tag_count.textContent = tag.textContent + " has " + tag.getAttribute("votes") + " vote"
+    else tag_count.textContent = tag.textContent + " has " + tag.getAttribute("votes") + " votes"
+    votes.innerHTML = tag.getAttribute("votes")
   }
   tag.onmouseout = function() {
-    document.getElementById('tagvotes').remove()
+    tag_count.textContent = tag.textContent + " has " + tag.getAttribute("votes") + " votes"
+    if (top_song_tags.childElementCount <= 0) tag_count.textContent = "Be the first to tag this song!"
+    else if (top_song_tags.childElementCount == 1) tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tag"
+    else tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tags"
   }
   tag.style.backgroundColor = stringToColour(tagname);
   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
@@ -414,7 +415,7 @@ async function importTopTags(){
       items.forEach(tag => {
         displayTopTag(tag[0].replace(/\w\S*/g, function (txt) {
           return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        }));
+        }), tag[1]);
       })
     })
 
