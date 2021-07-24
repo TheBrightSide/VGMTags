@@ -1,3 +1,4 @@
+//references html
 let tag_count = document.querySelector(".tag-count");
 let track_art = document.querySelector(".track-art");
 let track_name = document.querySelector(".track-name");
@@ -13,6 +14,7 @@ let heart_button = document.querySelector(".add-playlist");
 let sidenav = document.querySelector(".sidenav")
 let tag_track = document.querySelector(".tag-track")
 
+//related to player
 let track_index = 0; // Current index in the queue. Allows user to go to previous song.
 let isPlaying = false; // True if the player is playing
 let isTaggerOpen = false; // True if the tagger menu is open
@@ -21,8 +23,8 @@ let track_list = []; // Songs in queue
 let cache = []; // The unchanging cache
 let full_albums = []; // The changing cache
 
+//related to tags
 let restricted_tag_list = ["Relaxing", "Summer", "Fall", "Winter", "Spring", "Rock", "Electronic"]; // default tag list
-
 let current_tags = [];
 let current_user_tags = [];
 let addable_tags = document.getElementById('tagSelections');
@@ -37,7 +39,7 @@ curr_track.setAttribute('crossOrigin', 'anonymous')
 // Listens for clicks
 document.body.addEventListener('mousedown', function (event) {
 
-  // Detects clicks outside of sidenav when open
+  // Detects clicks outside of sidenav
   if (!sidenav.contains(event.target) && !tag_track.contains(event.target)) {
       closeNav();
   }
@@ -512,10 +514,6 @@ function openNav() {
 function closeNav() {
   document.getElementById("tagAdderList").style.width = "0";
   isTaggerOpen = false;
-}
-
-function printHi() {
-  alert("hi Alex (:")
 }
 
 function stringToColour(str) {
