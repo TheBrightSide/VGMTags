@@ -70,7 +70,7 @@ app.get('/allmusic', (req, res) => {
         });
 });
 
-const DEFAULT_TAGS = ["8-bit","ambient","battle","beach","boss","brass","cave","celebration","cheery","chiptune","choir","circus","cover","credits","creepy","depressing","dynamic","electronic","emotional","empty","fall","fast","finale","foreboding","frantic","gentle","glitch","guitar","happy","hardcore","harp","heroic","horror","insane","intense","jazz","joyful","lullaby","march","mellow","meloncholy","menu","metal","minimal","night","orchestrated","piano","powerful","rave","relaxing","remix","rock","romantic","saxophone","secret","slow","snow","soft","space","spring","summer","synth","tropical","underwater","upbeat","violin","vocals","volcano","weird","winter"]
+const DEFAULT_TAGS = ["8-bit","ambient","battle","beach","boss","brass","cave","celebration","cheery","chiptune","choir","circus","cover","credits","creepy","depressing","distant","dynamic","electronic","emotional","empty","fall","fast","finale","foreboding","frantic","gentle","glitch","guitar","happy","hardcore","harp","heroic","horror","insane","intense","jazz","joyful","lullaby","march","mellow","meloncholy","menu","metal","minimal","night","nostalgic","orchestrated","piano","powerful","rave","relaxing","remix","rock","romantic","saxophone","secret","slow","snow","soft","space","spring","summer","synth","tropical","trumpet","underwater","upbeat","violin","vocals","volcano","weird","winter",]
 
 app.get('/defaulttags', (req, res) => {
     res.send(DEFAULT_TAGS);
