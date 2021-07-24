@@ -70,7 +70,7 @@ app.get('/allmusic', (req, res) => {
         });
 });
 
-const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall", "cheery", "insane", "cover", "remix"];
+const DEFAULT_TAGS = ["relaxing", "upbeat", "intense", "weird", "ambient", "emotional", "electronic", "jazz", "piano", "brass", "violin", "harp", "guitar", "saxophone", "synth", "beach", "winter", "spring", "summer", "fall", "cheery", "insane", "cover", "remix", "horror", "circus", "glitch", "secret", "march", "chiptune", "8-bit", "celebration", "hardcore", "rave", "dynamic", "minimal", "vocals", "volcano", "underwater", "menu", "cave", "romantic", "foreboding", "battle", "boss", "finale", "credits", "space", "lullaby", "orchestrated", "night", "tropical", "rock", "metal", "snow"];
 
 app.get('/defaulttags', (req, res) => {
     res.send(DEFAULT_TAGS);

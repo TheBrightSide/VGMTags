@@ -10,6 +10,8 @@ let volume_slider = document.querySelector(".volume_slider");
 let curr_time = document.querySelector(".current-time");
 let total_duration = document.querySelector(".total-duration");
 let heart_button = document.querySelector(".add-playlist");
+let sidenav = document.querySelector(".sidenav")
+let tag_track = document.querySelector(".tag-track")
 
 let track_index = 0; // Current index in the queue. Allows user to go to previous song.
 let isPlaying = false; // True if the player is playing
@@ -31,6 +33,17 @@ let used_custom_tag = false;
 // Create new audio element
 let curr_track = document.createElement('audio');
 curr_track.setAttribute('crossOrigin', 'anonymous')
+
+// Listens for clicks
+document.body.addEventListener('mousedown', function (event) {
+
+  // Detects clicks outside of sidenav when open
+  if (!sidenav.contains(event.target) && !tag_track.contains(event.target)) {
+      closeNav();
+  }
+  //
+
+});
 
 function displayTopTag(tagname){
   var tag = document.createElement("song-tag");
@@ -91,7 +104,7 @@ function loadTrack(track_index) {
   track_art.style.backgroundImage = "url('" + track_list[track_index].image + "')";
   track_name.textContent = track_list[track_index].title;
   track_artist.textContent = track_list[track_index].album;
-  tag_count.textContent = "This song has been tagged " + top_song_tags.childElementCount + " times"
+
 
   // Set an interval of 1000 milliseconds for updating the seek slider
   updateTimer = setInterval(seekUpdate, 1000);
@@ -242,24 +255,28 @@ function searchFilter() {
       hidden_items++;
     }
   }
-  if (document.getElementById("addCustomTag")) ++hidden_items;
-  if (hidden_items >= li.length) {
+
+  if (hidden_items > 0) {
     if (document.getElementById("addCustomTag")) {
       document.getElementById("addCustomTag").innerHTML = '<a onclick="selectTag(this)">Add custom tag:<br><br>' + input.value + '</a>' //change to addCustomTag
-    } else {
+    } 
+    else {
       customAdd = document.createElement("custom")
-      customAdd.innerHTML = '<tag id="addCustomTag"><a onclick="selectTag(this)">Add custom tag:<br><br>' + input.value + '</a></tag>';
+      customAdd.innerHTML = '<bruh id="addCustomTag"><a onclick="selectTag(this)">Add custom tag:<br><br>' + input.value + '</a></bruh>';
       document.getElementById("tagSelections").appendChild(customAdd);
     }
-  } else {
-    if (document.getElementById("addCustomTag")) document.getElementById("addCustomTag").remove();
+  } 
+  else {
+    document.getElementById("addCustomTag").remove();
   }
 }
 
 function selectTag(tag) {
   if (current_user_tags.length >= 5) {
-    console.log(current_user_tags)
     alert("You can't add any more tags to this song. Remove some or move on!")
+  }
+  else if (tag.textContent.replace('Add custom tag:', '').length > 18){
+    alert("This tag is too long!")
   }
   else if (current_user_tags.map(cur_tag => cur_tag.textContent.toLowerCase()).includes(tag.textContent.toLowerCase())) {
     alert("You have already added that tag, pick a different one!")
@@ -271,14 +288,11 @@ function selectTag(tag) {
       } else addCustomTag(tag);
     } else addUserTag(tag);
   }
-  console.log(current_user_tags)
 }
 
 async function removeTag(tag) {
   if (!restricted_tag_list.map(cur_tag => cur_tag.toLowerCase()).includes(tag.parentElement.parentElement.textContent.toLowerCase())) used_custom_tag = false;
   current_user_tags.splice(current_user_tags.indexOf(tag.parentElement.parentElement), 1)
-  
-  console.log(tag.parentElement.parentElement.textContent)
 
   await fetch('/music/tags/' + curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11), {
     method: 'POST',
@@ -307,7 +321,6 @@ function resetTagSelector() {
     tag.remove();
   })
   current_tags = [];
-  console.log(current_user_tags)
   current_user_tags.forEach(tag => {
     tag.remove();
   })
@@ -324,8 +337,6 @@ async function importTopTags(){
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
-
       var items = [];
       for (const [tag, votes] of Object.entries(data)) {
         if (votes!=0) items.push([tag,votes])
@@ -342,6 +353,9 @@ async function importTopTags(){
         }));
       })
     })
+  if (top_song_tags.childElementCount <= 0) tag_count.textContent = "Be the first to tag this song!"
+  else if (top_song_tags.childElementCount == 1) tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tag"
+  else tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tags"
 }
 
 function importTagList() {
@@ -392,8 +406,6 @@ async function importUserTags() {
         used_custom_tag = true;
       } 
       else {
-        console.log(user_tag)
-
         // Same as in addUserTag
         var tag = document.createElement("tag");
         tag.className = "tag";
@@ -414,7 +426,6 @@ async function importUserTags() {
 }
 
 async function addCustomTag(user_tag) {
-  console.log("custom tag")
   var tag = document.createElement("tag");
   tag.className = "tag";
   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent.replace('Add custom tag:', '').replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()});
@@ -447,8 +458,6 @@ async function addCustomTag(user_tag) {
 }
 
 async function addUserTag(user_tag) {
-  console.log(user_tag.textContent)
-  console.log(curr_track.src.substring(curr_track.src.indexOf('foldertree/') + 11))
   var tag = document.createElement("tag");
   tag.className = "tag";
   tag.innerHTML = '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' + user_tag.textContent;
@@ -547,7 +556,6 @@ function stringToColour(str) {
   if (getCookie('volume') != undefined) {
     volume_slider.value = getCookie('volume') * 100;
     curr_track.volume = getCookie('volume');
-    console.log(getCookie('volume'))
   }
   else {
     volume_slider.value = 50;
@@ -577,7 +585,6 @@ function stringToColour(str) {
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       restricted_tag_list = data.map(entry => entry.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       }));
