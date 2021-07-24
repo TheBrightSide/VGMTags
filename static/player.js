@@ -51,6 +51,21 @@ function displayTopTag(tagname){
   var tag = document.createElement("song-tag");
   tag.className = "song-tag";
   tag.innerHTML = tagname;
+  tag.onclick = async function() {
+    await tagSong()
+    selectTag(this)
+  }
+  tag.onmouseover = function() {
+    var votes = document.createElement("votes")
+    votes.className = "tag-votes"
+    votes.id = "tagvotes"
+    votes.innerHTML = 1203
+    votes.display = "inline-table"
+    tag.parentElement.parentElement.parentElement.appendChild(votes)
+  }
+  tag.onmouseout = function() {
+    document.getElementById('tagvotes').remove()
+  }
   tag.style.backgroundColor = stringToColour(tagname);
   tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
@@ -172,7 +187,6 @@ async function prevTrack() {
   await (async function () {
     if (track_index > 0)
       track_index -= 1;
-    else track_index = track_list.length;
   })();
   loadTrack(track_index);
   playTrack();
@@ -329,7 +343,10 @@ async function addToTagDB(html_tag){
   })
     .then(response => response.json())
     .then(data => {
-      console.log(data)
+      if(data.rejected.length > 0){
+        html_tag.remove()
+        alert("You have already added that tag, pick a different one!")
+      }
     })
   importTopTags();
 }
