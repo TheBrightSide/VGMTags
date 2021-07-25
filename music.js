@@ -82,11 +82,15 @@ app.get('/usertags/:folderName/:fileName', (req, res) => {
     const songPath = path.join('Music', folderName, fileName);
 
     //how do you do this more effectively?
-    ipDB.searchByIP(ip).taggedSongs.forEach((song, i) => {
-        if (song.path == songPath){
-            res.send(ipDB.searchByIP(ip).taggedSongs[i].tags)
-        }
-    });
+    if (!!ipDB.searchByIP(ip)) {
+        ipDB.searchByIP(ip).taggedSongs.forEach((song, i) => {
+            if (song.path == songPath){
+                res.send(ipDB.searchByIP(ip).taggedSongs[i].tags)
+            }
+        });
+    } else {
+        res.send(JSON.stringify([]));
+    }
     if (!res.headersSent){
         res.send(JSON.stringify(new Array()));
     }
@@ -97,7 +101,7 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
     const songPath = path.join('Music', folderName, fileName);
 
     //how do you do this more effectively?
-    if(tagDB.searchByPath(songPath) != undefined){
+    if(!!tagDB.searchByPath(songPath)){
         console.log(tagDB.searchByPath(songPath).tags)
         result = {};
 
@@ -108,7 +112,7 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
         res.send(result);
     }
     if (!res.headersSent){
-        res.send(JSON.stringify(new Array()));
+        res.send(JSON.stringify([]));
     }
 })
 

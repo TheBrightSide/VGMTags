@@ -4,7 +4,7 @@ const jsmediatags = require('jsmediatags');
 const musicModule = require('./music.js');
 
 const dirCacheScheduler = new (require('./cacheDirectoryTask.js'))('./Music', 3600000);
-dirCacheScheduler.startCacheTimer();
+const backupScheduler = new (require('./backupDatabaseTask.js'))('./snapshots', 86400000);
 
 const app = express();
 var viable_albums = [];
@@ -66,6 +66,13 @@ app.get('/newBackground', function (request, response) {
 app.use(express.static('static'));
 app.use(express.static('./'))
 
+backupScheduler.once('writtenBackup', date => {
+  console.log('Creating database snapshots every', backupScheduler.refreshBackupInterval, 'ms');
+  console.log('Database snapshot created! Date', date);
+
+  backupScheduler.on('writtenBackup', date => console.log('Database snapshot created! Date', date));
+});
+
 console.log('Waiting for cache...');
 dirCacheScheduler.once('writtenCache', () => {
   console.log('Cache created!');
@@ -74,4 +81,7 @@ dirCacheScheduler.once('writtenCache', () => {
   let listener = app.listen(process.env.PORT || 3000, () => console.log('Server started on port', listener.address().port));
 
   dirCacheScheduler.on('writtenCache', () => console.log('Cache refreshed!'));
-})
+});
+
+dirCacheScheduler.startCacheTimer();
+backupScheduler.startDirectoryTimer();
