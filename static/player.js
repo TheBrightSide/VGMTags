@@ -49,8 +49,7 @@ document.body.addEventListener('mousedown', function (event) {
 
 function displayTopTag(tagname, votes){
   var tag = document.createElement("song-tag");
-  tag.className = "song-tag";
-  tag.innerHTML = tagname;
+  tag.innerHTML = "<table><tr><td><div class=song-tag>"+tagname+"</div></td><td><div>"+votes+"</div></td></tr></table>";
   tag.setAttribute("votes", votes)
   tag.onclick = async function() {
     await tagSong()
@@ -68,12 +67,14 @@ function displayTopTag(tagname, votes){
     else tag_count.textContent = "This song has " + top_song_tags.childElementCount + " tags"
   }
   tag.style.backgroundColor = stringToColour(tagname);
-  tag_colors = tag.style.backgroundColor.substring(4, tag.style.backgroundColor.length - 1).split(', ');
+  var tagdiv = tag.children[0].children[0].children[0].children[0].children[0]
+  tagdiv.style.backgroundColor = stringToColour(tagname);
+  tag_colors = tagdiv.style.backgroundColor.substring(4, tagdiv.style.backgroundColor.length - 1).split(', ');
   if ((tag_colors[0] * 0.299 + tag_colors[1] * 0.587 + tag_colors[2] * 0.114) > 160) {
-    tag.style.color = "#000000"
+    tagdiv.style.color = "#000000"
   }
   else {
-    tag.style.color = "#ffffff"
+    tagdiv.style.color = "#ffffff"
   }
   top_song_tags.appendChild(tag);
 }
