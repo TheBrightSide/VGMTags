@@ -17,7 +17,7 @@ class BackupTaskEventEmitter extends EventEmitter {
 
         let ipsRaw = require('./db/ips.json');
         let tagsRaw = require('./db/tags.json');
-        let date = new Date().toISOString();
+        let date = new Date().getTime();
 
         fs.mkdirSync(`${this.backupDirectory}/${date}/`);
         fs.writeFileSync(`${this.backupDirectory}/${date}/ips.json`, JSON.stringify(ipsRaw));
