@@ -15,12 +15,14 @@
     "jsmediatags": "^3.9.7"
   },
   "devDependencies": {
+    "eslint": "^7.31.0",
     "nodemon": "^2.0.7"
   },
   "nodemonConfig": {
     "ignore": [
       "./cache/**",
-      "./db/**"
+      "./db/**",
+      "./snapshots/**"
     ]
   }
 }
