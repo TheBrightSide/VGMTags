@@ -58,10 +58,12 @@ function displayTopTag(tagname, votes){
   var tagvote = tag.children[0].children[0].children[0].children[1].children[0]
   var tagdiv = tag.children[0].children[0].children[0].children[0].children[0]
   tagdiv.onmouseover = function() {
-    tagvote.style.display = "inline-block"
+    // tagvote.style.display = "inline-block"
+    tagvote.style.opacity = 1;
   }
   tagdiv.onmouseout = function() {
-    tagvote.style.display = "none"
+    // tagvote.style.display = "none"
+    tagvote.style.opacity = 0;
   }
   tag.style.backgroundColor = stringToColour(tagname);
   
