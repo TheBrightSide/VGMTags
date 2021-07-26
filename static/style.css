@@ -108,7 +108,7 @@ body {
 	padding-left: 0px; padding-right: 5px;
 	margin: 8px 0px 0px 0px;
 	align-items: center;
-	transition: opacity 100ms;
+	transition: opacity 50ms;
 	filter: drop-shadow(2px 2px 0px black);
 }
 
