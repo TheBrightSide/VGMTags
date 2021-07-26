@@ -85,19 +85,29 @@ body {
 /* top tags on side of album */
 .song-tag {
 	border-radius: 10px;
-	display: table;
+	display: inline-block;
 	background-color: #2b2b2b;
 	color: #818181;
-	padding-top: 1%; padding-bottom: 1%;
-	padding-left: 12%; padding-right: 2%;
-	margin: 8px 8px 0px 8px;
+	padding-top: 1px; padding-bottom: 1px;
+	padding-left: 20px; padding-right: 5px;
+	margin: 8px 0px 0px 8px;
 	align-items: center;
 }
 
 .song-tag:hover{
-	padding-left: 18%;
+	padding-left: 30px;
 	cursor:pointer;
 }
+
+.votes{
+	border-radius: 15px;
+	display: none;
+	padding-top: 1px; padding-bottom: 1px;
+	padding-left: 0px; padding-right: 5px;
+	margin: 8px 0px 0px 0px;
+	align-items: center;
+  }
+
 
 .now-playing {
 	font-size: 1rem;
@@ -302,4 +312,8 @@ i.fa-step-backward {
 
 .removeTagButton {
 	margin-right: 4px;
+}
+
+th, td{
+	padding: 5px;
 }
