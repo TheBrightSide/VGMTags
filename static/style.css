@@ -109,6 +109,7 @@ body {
 	margin: 8px 0px 0px 0px;
 	align-items: center;
 	transition: opacity 100ms;
+	filter: drop-shadow(2px 2px 0px black);
 }
 
 
