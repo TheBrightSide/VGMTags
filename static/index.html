@@ -19,6 +19,15 @@
 
 <body>
 
+  <!-- <div id="menu" class="menu">
+    <div id="hamburger" class="hamburger" onclick="aboutUs()">
+      <i class="fas fa-bars" style="font-size: 1.5rem;"></i>
+    </div>
+    <div id="hamburger-menu" class="hamburger-menu">
+      <a>About Us</a>
+    </div>
+  </div> -->
+
   <div class="player">
     <div class="details">
       <div class="tag-count">This song has x tags</div>
@@ -50,8 +59,6 @@
     </div>
   </div>
 
-  
-
   <div id="tagAdderList" class="sidenav">
     <style>
     ::-webkit-scrollbar{
@@ -72,8 +79,11 @@
     <div id="tagSelections" class="tagselector"></div>
   </div>
 
+  <div id="aboutUs" class="about-us" onclick="aboutUs()">About Us</div>
+
   <!-- Main script for the player -->
   <script src="player.js"></script>
+  <script src="menu.js"></script>
 </body>
 
 </html>
