@@ -58,11 +58,15 @@ async function getMusicFilenames(folderName) {
                 title: tags.title,
                 path: encodeURI(`${FOLDERTREE_ENDPOINT}/${folder}/${file}`)
             });
+
+            process.stdout.clearLine();
+            process.stdout.write(album.title+": "+tags.title);
+            process.stdout.cursorTo(0);
         }
 
         albumArr.push(album);
     }
-
+    process.stdout.clearLine();
     return albumArr;
 }
 
