@@ -59,7 +59,6 @@ document.body.addEventListener("mousedown", function (event) {
 //keyboard shortcuts
 document.body.addEventListener("keydown", function (event) {
   if(document.getElementById("tagSearchFilter") != document.activeElement) {
-    console.log(event.key)
     switch (event.key) {
       case "ArrowDown":
         loadPrevBackground();
@@ -94,8 +93,6 @@ document.body.addEventListener("keydown", function (event) {
         break;
       case "f":
         heartSong();
-      default:
-        console.log("nothing ):");
     }
   }
   else if (document.getElementById("tagSearchFilter") == document.activeElement){
