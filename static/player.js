@@ -687,20 +687,12 @@ function stringToColour(str) {
 
 // Load the random background
 async function loadNextBackground() {
-  if (background_index == backgrounds.length - 1) {
-    await fetch("/newBackground", {
-      method: "GET",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.background);
-        loadBackground(data.background);
-        backgrounds.push(data.background);
-        document.cookie = "background=" + data.background;
-        background_index += 1;
-      });
-  } else {
+  if (background_index != backgrounds.length - 1) {
     background_index += 1;
+    loadBackground(backgrounds[background_index]);
+  }
+  else{
+    background_index = 0;
     loadBackground(backgrounds[background_index]);
   }
 }
@@ -745,6 +737,22 @@ function loadBackground(background) {
         cache.push(new Album(album["title"], album_songs, album["path"]));
       });
     });
+  
+  await fetch("/allbg", {
+    method: "GET",
+  })
+  .then((response)=>response.json())
+  .then((data)=>{
+    data.forEach((background)=>{
+      backgrounds.push(`./Backgrounds/${background}`)
+    });
+    for(let i = backgrounds.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * i)
+      const temp = backgrounds[i]
+      backgrounds[i] = backgrounds[j]
+      backgrounds[j] = temp
+    }
+  });
 
   full_albums = cache;
 

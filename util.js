@@ -29,6 +29,18 @@ function getMusicFolders() {
         .map(dirent => dirent.name);
 }
 
+async function getBackgroundFilenames(){
+    return fs.readdirSync('./Backgrounds');
+}
+
+async function getCachedBackgroundFilenames() {
+    if (fs.existsSync('./cache/backgrounds.json')) {
+        return require('./cache/backgrounds.json');
+    } else {
+        throw new Error('cache is not available!');
+    }
+}
+
 async function getMusicFilenames(folderName) {
     if (folderName) var folders = fs.readdirSync('./Music').filter(e => e === folderName);
     else var folders = fs.readdirSync('./Music');
@@ -107,6 +119,8 @@ function isPathSame(path1, path2) {
 module.exports = {
     random,
     readTags,
+    getBackgroundFilenames,
+    getCachedBackgroundFilenames,
     getMusicFolders,
     getMusicFilenames,
     getCachedMusicFilenames,

@@ -102,7 +102,6 @@ app.get('/tags/:folderName/:fileName', (req, res) => {
 
     //how do you do this more effectively?
     if(!!tagDB.searchByPath(songPath)){
-        console.log(tagDB.searchByPath(songPath).tags)
         result = {};
 
         for (tag of tagDB.searchByPath(songPath).tags) {
