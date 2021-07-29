@@ -240,7 +240,7 @@ function pauseTrack() {
   playpause_btn.innerHTML = '<i class="fas fa-play-circle fa-5x"></i>';
 }
 
-// Fetches a newSong. Yes I know it is messy :/
+// This function breaks if you get to the end of the tracklist, but that's never going to happen so I'm just not fixing it!
 async function loadNextSong() {
   if (track_list.length - 1 == track_index) {
     selected_song = null;
@@ -264,7 +264,6 @@ async function loadNextSong() {
 async function nextTrack() {
   await loadNextSong();
   if (track_index < track_list.length - 1) {
-    
     track_index += 1;
   } else {
     track_index = 0;
