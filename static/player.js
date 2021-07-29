@@ -264,6 +264,7 @@ async function loadNextSong() {
 async function nextTrack() {
   await loadNextSong();
   if (track_index < track_list.length - 1) {
+    
     track_index += 1;
   } else {
     track_index = 0;
