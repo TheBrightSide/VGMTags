@@ -379,8 +379,7 @@ th, td{
 	  position:absolute;
 	  color: white;
 	  opacity: .35;
-	  padding-left: .5%;
-	  padding-bottom: 1%;
+	  margin: 8px 8px 8px 8x;
 	  cursor: pointer;
 	  transition: opacity .25s;
 	  text-decoration: underline;
