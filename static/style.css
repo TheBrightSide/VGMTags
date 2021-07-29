@@ -108,10 +108,9 @@ body {
 	padding-left: 0px; padding-right: 5px;
 	margin: 8px 0px 0px 0px;
 	align-items: center;
-	transition: opacity 50ms;
+	transition: opacity 75ms;
 	filter: drop-shadow(2px 2px 0px black);
 }
-
 
 .now-playing {
 	font-size: 1rem;
@@ -381,7 +380,7 @@ th, td{
 	  color: white;
 	  opacity: .35;
 	  padding-left: .5%;
-	  padding-top: .5%;
+	  padding-bottom: 1%;
 	  cursor: pointer;
 	  transition: opacity .25s;
 	  text-decoration: underline;

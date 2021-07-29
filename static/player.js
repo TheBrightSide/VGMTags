@@ -123,13 +123,13 @@ function displayTopTag(tagname, votes) {
     "</div></td><td><div class=votes>" +
     votes +
     "</div></td></tr></table>";
-  tag.setAttribute("votes", votes);
-  tag.onclick = async function () {
-    await tagSong();
-    selectTag(this);
-  };
   var tagvote = tag.children[0].children[0].children[0].children[1].children[0];
   var tagdiv = tag.children[0].children[0].children[0].children[0].children[0];
+  tag.setAttribute("votes", votes);
+  tag.onclick = async function () {
+    // await tagSong();
+    selectTag(tagdiv);
+  };
   tagdiv.onmouseover = function () {
     // tagvote.style.display = "inline-block"
     tagvote.style.opacity = 1;
