@@ -138,6 +138,13 @@ app.post('/tags/:folderName/:fileName', (req, res) => {
                     });
                     return;
                 }
+                if(require('./db/bannedips.json').includes(ip)){
+                    res.status(403);
+                    res.send({
+                        error: "You have been banned from voting."
+                    });
+                    return;
+                }
 
                 const tags = req.body.tags.map(e => e.toLowerCase());
                 let acceptedTags = [];

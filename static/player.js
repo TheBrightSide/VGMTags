@@ -117,6 +117,7 @@ document.body.addEventListener("keydown", function (event) {
 
 function displayTopTag(tagname, votes) {
   var tag = document.createElement("song-tag");
+  if(!restricted_tag_list.includes(tagname)) tagname += "★"
   tag.innerHTML =
     "<table><tr><td><div class=song-tag>" +
     tagname +
@@ -352,7 +353,7 @@ function searchFilter() {
     } else {
       if (document.getElementById("addCustomTag")) {
         if (
-          txtValue.replace("Add custom tag:", "").toUpperCase() ==
+          txtValue.replace("★", "").toUpperCase() ==
           input.value.toUpperCase().substring(0, input.value.length - 1)
         ) {
           continue;
@@ -366,15 +367,21 @@ function searchFilter() {
   if (hidden_items > 0) {
     if (document.getElementById("addCustomTag")) {
       document.getElementById("addCustomTag").innerHTML =
-        '<a onclick="selectTag(this)">Add custom tag:<br><br>' +
-        input.value +
-        "</a>";
+        '<a onclick="selectTag(this)">' +
+        input.value.replace("★", "")
+        .replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }) +
+        "★</a>";
     } else {
       customAdd = document.createElement("custom");
       customAdd.innerHTML =
-        '<bruh id="addCustomTag"><a onclick="selectTag(this)">Add custom tag:<br><br>' +
-        input.value +
-        "</a></bruh>";
+        '<bruh id="addCustomTag"><a onclick="selectTag(this)">' +
+        input.value.replace("★", "")
+        .replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }) +
+        "★</a></bruh>";
       document.getElementById("tagSelections").appendChild(customAdd);
     }
   } 
@@ -388,7 +395,7 @@ function searchFilter() {
 function selectTag(tag) {
   if (current_user_tags.length >= 5) {
     alert("You can't add any more tags to this song. Remove some or move on!");
-  } else if (tag.textContent.replace("Add custom tag:", "").length > 18) {
+  } else if (tag.textContent.replace("★", "").length > 18) {
     alert("This tag is too long!");
   } else if (
     current_user_tags
@@ -420,7 +427,7 @@ function addHTMLTag(user_tag) {
   tag.innerHTML =
     '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' +
     user_tag.textContent
-      .replace("Add custom tag:", "")
+      .replace("★", "")
       .replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
@@ -454,8 +461,14 @@ async function addToTagDB(html_tag) {
   })
     .then((response) => response.json())
     .then((data) => {
-      if (data.rejected.length > 0) {
+      if (data.error){
         html_tag.remove();
+        current_user_tags.pop()
+        alert(data.error)
+      }
+      else if (data.rejected.length > 0) {
+        html_tag.remove();
+        current_user_tags.pop()
         alert("You have already added that tag, pick a different one!");
       }
     });
@@ -499,10 +512,12 @@ async function removeTag(tag) {
 }
 
 function resetTagSelector() {
-  current_tags.forEach((tag) => {
-    tag.remove();
-  });
-  current_tags = [];
+  if(!isTaggerOpen){
+    current_tags.forEach((tag) => {
+      tag.remove();
+    });
+    current_tags = [];
+  }
   current_user_tags.forEach((tag) => {
     tag.remove();
   });
@@ -603,7 +618,7 @@ async function importUserTags() {
         tag.className = "tag";
         tag.innerHTML =
           '<span id="tagRemover" class="removeTagButton"><i class="fas fa-times" onclick="removeTag(this)"></i></span>' +
-          user_tag;
+          user_tag + "★";
         tag.style.backgroundColor = stringToColour(user_tag);
         tag_colors = tag.style.backgroundColor
           .substring(4, tag.style.backgroundColor.length - 1)
@@ -675,7 +690,7 @@ function closeNav() {
 function stringToColour(str) {
   var hash = 0;
   for (var i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    if (str.charAt(i) != "★") hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   var colour = "#";
   for (var i = 0; i < 3; i++) {
