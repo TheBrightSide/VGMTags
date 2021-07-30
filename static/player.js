@@ -368,13 +368,19 @@ function searchFilter() {
     if (document.getElementById("addCustomTag")) {
       document.getElementById("addCustomTag").innerHTML =
         '<a onclick="selectTag(this)">' +
-        input.value +
+        input.value.replace("★", "")
+        .replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }) +
         "★</a>";
     } else {
       customAdd = document.createElement("custom");
       customAdd.innerHTML =
         '<bruh id="addCustomTag"><a onclick="selectTag(this)">' +
-        input.value +
+        input.value.replace("★", "")
+        .replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }) +
         "★</a></bruh>";
       document.getElementById("tagSelections").appendChild(customAdd);
     }
